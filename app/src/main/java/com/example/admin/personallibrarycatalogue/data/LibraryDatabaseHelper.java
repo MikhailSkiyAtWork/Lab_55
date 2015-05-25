@@ -48,6 +48,8 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public void addBook()
+    public void addBook(Book book){
+
+    }
 
 }
