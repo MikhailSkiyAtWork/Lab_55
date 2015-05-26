@@ -6,23 +6,31 @@ import android.graphics.drawable.Drawable;
  * Created by Mikhail Valuyskiy on 25.05.2015.
  */
 public class Book {
+    //region Private fields
     private String title_;
     private String author_;
     private String description_;
-    private Drawable cover_;
+    private byte[] cover_;
+    //endregion
 
-    public Book(String title,String author, String description, Drawable cover){
+    //region Constructors
+    public Book(String title,String author, String description, byte[] cover){
         this.title_ = title;
         this.author_ = author;
         this.description_ = description;
         this.cover_ = cover;
     }
 
+
     public Book(String title,String author){
         this.title_ = title;
         this.author_ = author;
     }
 
+    public Book(){}
+    //endregion
+
+    //region Accessor Methods
     public String getTitle(){
         return title_;
     }
@@ -38,5 +46,22 @@ public class Book {
     public void setAuthor(String author){
         this.author_ = author;
     }
+
+    public String getDescription(){
+        return description_;
+    }
+
+    public void setDescription(String description){
+        this.description_ = description;
+    }
+
+    public byte[] getCover(){
+        return this.cover_;
+    }
+
+    public void setCover(byte[] cover){
+        this.cover_ = cover;
+    }
+    //endregion
 
 }
