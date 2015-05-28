@@ -48,8 +48,7 @@ private static class ViewHolder {
         viewHolder.authorTextView_.setText(getItem(position).getAuthor());
         viewHolder.titleTextView_.setText(getItem(position).getTitle());
 
-        // TODO convert byte[] to Drawable
-        viewHolder.coverImageView_.setImageDrawable(getItem(position).getCover());
+        viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(getItem(position).getCover()));
 
         return convertView;
     }

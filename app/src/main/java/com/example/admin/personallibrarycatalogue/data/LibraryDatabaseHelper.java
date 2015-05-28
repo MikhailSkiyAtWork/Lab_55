@@ -30,8 +30,6 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Creates table to hold book data
-     *
-     * @param sqLiteDatabase
      */
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
