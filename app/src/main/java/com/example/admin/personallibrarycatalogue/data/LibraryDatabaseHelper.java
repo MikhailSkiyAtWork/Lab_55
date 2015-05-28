@@ -21,7 +21,7 @@ import java.util.List;
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     // When the database schema was changed, you must increment the database version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     static final String DATABASE_NAME = "library.db";
 
     public LibraryDatabaseHelper(Context context) {

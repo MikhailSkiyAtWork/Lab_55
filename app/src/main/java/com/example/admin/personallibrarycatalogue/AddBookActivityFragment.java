@@ -26,18 +26,18 @@ import java.io.InputStream;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class AddBookActivityFragment extends Fragment {
 
     private ImageView imageView_;
     private final int SELECT_PHOTO = 1;
 
-    public MainActivityFragment() {
+    public AddBookActivityFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
 
         imageView_ = (ImageView) rootView.findViewById(R.id.imageView);
         Button setImageButton = (Button) rootView.findViewById(R.id.set_image_button);
@@ -58,7 +58,7 @@ public class MainActivityFragment extends Fragment {
 
         applyButton.setOnClickListener(new View.OnClickListener(){
             @Override
-        public void onClick(View v){
+            public void onClick(View v){
 
                 EditText authorEditText = (EditText)rootView.findViewById(R.id.author_edit_text);
                 String author = authorEditText.getText().toString();

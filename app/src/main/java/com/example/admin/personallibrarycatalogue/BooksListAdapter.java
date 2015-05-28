@@ -10,8 +10,6 @@ import android.widget.TextView;
 
 import com.example.admin.personallibrarycatalogue.data.Book;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 /**
@@ -27,7 +25,7 @@ private static class ViewHolder {
 }
 
     public BooksListAdapter(Context context, List<Book> booksList) {
-        super(context, R.layout.relative_list_item, booksList);
+        super(context, R.layout.list_item, booksList);
     }
 
     @Override
@@ -35,20 +33,24 @@ private static class ViewHolder {
         ViewHolder viewHolder;
 
         if (convertView == null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.relative_list_item,parent,false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item,parent,false);
             viewHolder = new ViewHolder();
 
             viewHolder.authorTextView_ = (TextView)convertView.findViewById(R.id.list_item_author);
             viewHolder.titleTextView_ = (TextView)convertView.findViewById(R.id.list_item_title);
             viewHolder.coverImageView_ = (ImageView)convertView.findViewById(R.id.list_item_image_view);
+            convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
         viewHolder.authorTextView_.setText(getItem(position).getAuthor());
+
         viewHolder.titleTextView_.setText(getItem(position).getTitle());
 
-        viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(getItem(position).getCover()));
+        if (Util.getBitmapFromBytes(getItem(position).getCover())!= null) {
+            viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(getItem(position).getCover()));
+        }
 
         return convertView;
     }
