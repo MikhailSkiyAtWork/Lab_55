@@ -13,8 +13,10 @@ public class AddBookActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
         if (savedInstanceState == null) {
+            AddBookActivityFragment addBookActivityFragment = new AddBookActivityFragment();
+            addBookActivityFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment, new AddBookActivityFragment())
+                    .add(R.id.add_fragment, addBookActivityFragment)
                     .commit();
         }
     }

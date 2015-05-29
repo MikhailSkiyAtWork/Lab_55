@@ -1,7 +1,6 @@
 package com.example.admin.personallibrarycatalogue;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -16,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.admin.personallibrarycatalogue.data.Book;
-import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
 import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
 
 import java.io.FileNotFoundException;
@@ -30,20 +28,62 @@ public class AddBookActivityFragment extends Fragment {
 
     private ImageView imageView_;
     private final int SELECT_PHOTO = 1;
+    private boolean isEditMode_ = false;
+
+    public AddBookActivityFragment newInstance(String title,String author){
+        AddBookActivityFragment fragment = new AddBookActivityFragment();
+
+        // arguments
+        Bundle arguments = new Bundle();
+        arguments.putString("Title",title);
+        arguments.putString("Author", author);
+        fragment.setArguments(arguments);
+        return fragment;
+    }
 
     public AddBookActivityFragment() {
     }
 
+//    @Override
+//    public void OnCreate (Bundle savedInstanceState){
+//        super.onCreate(savedInstanceState);
+//        Bundle extras = getActivity().getIntent().getExtras();
+//        if(extras != null){
+//            String title = getArguments().getString("Title");
+//            String author = getArguments().getString("Author");
+//            fillAllFields(rootView, helper, title, author);
+//        }
+//    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
         final View rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
-
-        imageView_ = (ImageView) rootView.findViewById(R.id.imageView);
-        Button setImageButton = (Button) rootView.findViewById(R.id.set_image_button);
-
         final LibraryDatabaseHelper helper = new LibraryDatabaseHelper(getActivity());
-        final SQLiteDatabase database = helper.getWritableDatabase();
+
+        Bundle extras = getActivity().getIntent().getExtras();
+
+        if(extras != null){
+            isEditMode_ = true;
+            String title = getArguments().getString("Title");
+            String author = getArguments().getString("Author");
+            fillAllFields(rootView, helper, title, author);
+        }
+
+        imageView_ = (ImageView) rootView.findViewById(R.id.cover_image_view);
+
+//        if (savedInstanceState == null){
+//            if (!getActivity().getIntent().getExtras().isEmpty()) {
+//                String title = getArguments().getString("Title");
+//                String author = getArguments().getString("Author");
+//                fillAllFields(rootView, helper, title, author);
+//            }
+//        }
+
+        // Actions for change cover button
+        Button setImageButton = (Button) rootView.findViewById(R.id.set_image_button);
 
         setImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,22 +94,23 @@ public class AddBookActivityFragment extends Fragment {
             }
         });
 
-        Button applyButton = (Button) rootView.findViewById(R.id.apply_button);
+        // Actions for ok - button (Checking fields, insert into database, start new activity)
+        Button okButton = (Button) rootView.findViewById(R.id.apply_button);
 
-        applyButton.setOnClickListener(new View.OnClickListener(){
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
 
-                EditText authorEditText = (EditText)rootView.findViewById(R.id.author_edit_text);
+                EditText authorEditText = (EditText) rootView.findViewById(R.id.author_edit_text);
                 String author = authorEditText.getText().toString();
 
-                EditText titleEditText = (EditText)rootView.findViewById(R.id.title_edit_text);
+                EditText titleEditText = (EditText) rootView.findViewById(R.id.title_edit_text);
                 String title = titleEditText.getText().toString();
 
-                EditText descriptionEditText = (EditText)rootView.findViewById(R.id.description_edit_text);
+                EditText descriptionEditText = (EditText) rootView.findViewById(R.id.description_edit_text);
                 String description = descriptionEditText.getText().toString();
 
-                ImageView coverView = (ImageView)rootView.findViewById(R.id.imageView);
+                ImageView coverView = (ImageView) rootView.findViewById(R.id.cover_image_view);
                 byte[] cover = Util.getBytesFromDrawable(coverView.getDrawable());
 
                 if (author.matches("")) {
@@ -82,20 +123,66 @@ public class AddBookActivityFragment extends Fragment {
                     return;
                 }
 
+                Book book = new Book(title, author, description, cover);
 
-                Book book = new Book(title,author,description,cover);
-
+                // in case user edit information just update data
+                if (isEditMode_){
+                   long id = helper.getId(book.getTitle(),book.getAuthor());
+                    helper.updateBook(id,book);
+                }
                 helper.addBook(book);
 
-                Intent intent = new Intent(getActivity(),BooksListActivity.class);
+                Intent intent = new Intent(getActivity(), BooksListActivity.class);
                 startActivity(intent);
 
             }
         });
 
+        // Actions for cancel button (clear fields and leave activity)
+        Button cancelButton = (Button) rootView.findViewById(R.id.cancel);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ViewGroup group = (ViewGroup) rootView.findViewById(R.id.add_book_layout);
+                clearForm(group);
+
+                Intent intent = new Intent(getActivity(),MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
+
+    /**
+     * Clears all edtiText fileds
+     */
+    private void clearForm(ViewGroup group) {
+        for (int i = 0, count = group.getChildCount(); i < count; i++) {
+            View view = group.getChildAt(i);
+            if (view instanceof EditText) {
+                ((EditText) view).setText("");
+            }
+        }
+    }
+
+    private void fillAllFields(View view,LibraryDatabaseHelper helper, String title,String author ){
+        Book book = helper.getBook(title,author);
+
+        EditText titleEditText = (EditText)view.findViewById(R.id.title_edit_text);
+        titleEditText.setText(book.getTitle());
+
+        EditText authorEditText = (EditText)view.findViewById(R.id.author_edit_text);
+        authorEditText.setText(book.getAuthor());
+
+        EditText descriptionEditText = (EditText)view.findViewById(R.id.description_edit_text);
+        descriptionEditText.setText(book.getDescription());
+
+        ImageView coverView = (ImageView)view.findViewById(R.id.cover_image_view);
+        coverView.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
+
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {

@@ -1,10 +1,14 @@
 package com.example.admin.personallibrarycatalogue;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.internal.widget.AdapterViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.admin.personallibrarycatalogue.data.Book;
@@ -12,6 +16,7 @@ import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -25,7 +30,7 @@ public class BooksListActivityFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_books_list, container, false);
 
@@ -34,10 +39,26 @@ public class BooksListActivityFragment extends Fragment {
         List<Book> booksList = new ArrayList<Book>();
         booksList = helper.getAllBooks();
 
-        ListView listView = (ListView) rootView.findViewById(R.id.books_list_view);
+        final ListView listView = (ListView) rootView.findViewById(R.id.books_list_view);
         booksListAdapter_ = new BooksListAdapter(this.getActivity(), booksList);
-
         listView.setAdapter(booksListAdapter_);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Book book = (Book)parent.getItemAtPosition(position);
+                String author = book.getAuthor();
+                String title = book.getTitle();
+
+                Intent intent = new Intent();
+                intent.setClass(getActivity(),AddBookActivity.class);
+                intent.putExtra("Title", title);
+                intent.putExtra("Author", author);
+
+                startActivity(intent);
+            }
+        });
+
 
         return rootView;
     }

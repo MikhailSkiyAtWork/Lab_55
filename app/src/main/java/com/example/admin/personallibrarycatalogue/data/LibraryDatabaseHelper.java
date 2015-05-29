@@ -52,6 +52,67 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
+    public long getId(String title, String author){
+        if ((title != null)&&(author != null)){
+
+            long id = -1;
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME +
+                    " WHERE " + BooksTable.TITLE +  " =  \"" + title + "\"" +
+                    " AND " + BooksTable.AUTHOR + " =  \"" + author + "\"";
+
+            Cursor cursor = db.rawQuery(selectQuery,null);
+
+            if (cursor.moveToFirst()) {
+                id = (cursor.getLong(cursor.getColumnIndex(BooksTable._ID)));
+            }
+
+            db.close();
+            return id;
+        }
+        else {
+            throw new NullPointerException("Passed title or author is null");
+        }
+    }
+
+    public Book getBook(String title, String author){
+        if ((title != null)&&(author != null)){
+
+            Book book = new Book();
+            SQLiteDatabase db = this.getWritableDatabase();
+
+            String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME +
+                    " WHERE " + BooksTable.TITLE +  " =  \"" + title + "\"" +
+                    " AND " + BooksTable.AUTHOR + " =  \"" + author + "\"";
+
+            Cursor cursor = db.rawQuery(selectQuery,null);
+
+            if (cursor.moveToFirst()) {
+                book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
+                book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
+
+                if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
+                    book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
+                }
+
+                if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
+                    book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
+                }
+            }
+
+            db.close();
+            return book;
+        }
+        else {
+            throw new NullPointerException("Passed title object is null");
+        }
+    }
+
+    public void updateBook(long id, Book book){
+
+    }
+
     public void addBook(Book book) {
         if (book != null) {
             SQLiteDatabase db = this.getWritableDatabase();
