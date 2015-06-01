@@ -1,12 +1,16 @@
 package com.example.admin.personallibrarycatalogue.data;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Created by Mikhail Valuyskiy on 25.05.2015.
  */
 public class Book {
+
     //region Private fields
+    @Nullable private Integer id_ = null;
     private String title_;
     private String author_;
     private String description_;
@@ -14,7 +18,8 @@ public class Book {
     //endregion
 
     //region Constructors
-    public Book(String title,String author, String description, byte[] cover){
+    public Book(@Nullable Integer id, String title, String author, String description, byte[] cover) {
+        this.id_ = id;
         this.title_ = title;
         this.author_ = author;
         this.description_ = description;
@@ -22,7 +27,8 @@ public class Book {
     }
 
 
-    public Book(String title,String author){
+    public Book(@Nullable Integer id, String title, String author) {
+        this.id_ = id;
         this.title_ = title;
         this.author_ = author;
     }
@@ -31,6 +37,11 @@ public class Book {
     //endregion
 
     //region Accessor Methods
+    @Nullable
+    public Integer getId() {
+        return id_;
+    }
+
     public String getTitle(){
         return title_;
     }

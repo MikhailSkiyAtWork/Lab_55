@@ -18,4 +18,12 @@
     <string name="title_activity_add_book">AddBookActivity</string>
     <string name="hello_world">Hello world!</string>
 
+    <!-- Labels for options menu -->
+    <string name="add_book_action">Add book</string>
+
+    <!-- Labels for context menu -->
+    <string name="Menu">Menu</string>
+    <string name="edit_book_action">Edit</string>
+    <string name="delete_book_action">Delete</string>
+
 </resources>

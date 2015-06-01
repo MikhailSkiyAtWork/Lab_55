@@ -17,28 +17,28 @@ import java.util.List;
  */
 public class BooksListAdapter extends ArrayAdapter<Book> {
 
-private static class ViewHolder {
-    TextView authorTextView_;
-    TextView titleTextView_;
-    TextView descriptionTextView_;
-    ImageView coverImageView_;
-}
+    private static class ViewHolder {
+        TextView authorTextView_;
+        TextView titleTextView_;
+        TextView descriptionTextView_;
+        ImageView coverImageView_;
+    }
 
     public BooksListAdapter(Context context, List<Book> booksList) {
         super(context, R.layout.list_item, booksList);
     }
 
     @Override
-    public View getView(int position, View convertView,ViewGroup parent){
+    public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
 
-        if (convertView == null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item,parent,false);
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
             viewHolder = new ViewHolder();
 
-            viewHolder.authorTextView_ = (TextView)convertView.findViewById(R.id.list_item_author);
-            viewHolder.titleTextView_ = (TextView)convertView.findViewById(R.id.list_item_title);
-            viewHolder.coverImageView_ = (ImageView)convertView.findViewById(R.id.list_item_image_view);
+            viewHolder.authorTextView_ = (TextView) convertView.findViewById(R.id.list_item_author);
+            viewHolder.titleTextView_ = (TextView) convertView.findViewById(R.id.list_item_title);
+            viewHolder.coverImageView_ = (ImageView) convertView.findViewById(R.id.list_item_image_view);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -48,7 +48,7 @@ private static class ViewHolder {
 
         viewHolder.titleTextView_.setText(getItem(position).getTitle());
 
-        if (Util.getBitmapFromBytes(getItem(position).getCover())!= null) {
+        if (Util.getBitmapFromBytes(getItem(position).getCover()) != null) {
             viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(getItem(position).getCover()));
         }
 

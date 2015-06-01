@@ -26,34 +26,28 @@ import java.io.InputStream;
  */
 public class AddBookActivityFragment extends Fragment {
 
+    private final static String TITLE = "Title";
+    private final static String AUTHOR = "Author";
+    private final static String PLEASE_ENTER_THE_AUTHOR_FIELD = "Please enter the author field";
+    private final static String PLEASE_ENTER_THE_TITLE_FIELD =  "Please enter the title field";
     private ImageView imageView_;
     private final int SELECT_PHOTO = 1;
     private boolean isEditMode_ = false;
+    private Integer id_ ;
 
-    public AddBookActivityFragment newInstance(String title,String author){
+    public AddBookActivityFragment newInstance(String title, String author) {
         AddBookActivityFragment fragment = new AddBookActivityFragment();
 
         // arguments
         Bundle arguments = new Bundle();
-        arguments.putString("Title",title);
-        arguments.putString("Author", author);
+        arguments.putString(TITLE, title);
+        arguments.putString(AUTHOR, author);
         fragment.setArguments(arguments);
         return fragment;
     }
 
     public AddBookActivityFragment() {
     }
-
-//    @Override
-//    public void OnCreate (Bundle savedInstanceState){
-//        super.onCreate(savedInstanceState);
-//        Bundle extras = getActivity().getIntent().getExtras();
-//        if(extras != null){
-//            String title = getArguments().getString("Title");
-//            String author = getArguments().getString("Author");
-//            fillAllFields(rootView, helper, title, author);
-//        }
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,22 +59,14 @@ public class AddBookActivityFragment extends Fragment {
 
         Bundle extras = getActivity().getIntent().getExtras();
 
-        if(extras != null){
+        if (extras != null) {
             isEditMode_ = true;
-            String title = getArguments().getString("Title");
-            String author = getArguments().getString("Author");
-            fillAllFields(rootView, helper, title, author);
+            id_ = getArguments().getInt("id");
+
+            fillAllFields(rootView, helper, id_);
         }
 
         imageView_ = (ImageView) rootView.findViewById(R.id.cover_image_view);
-
-//        if (savedInstanceState == null){
-//            if (!getActivity().getIntent().getExtras().isEmpty()) {
-//                String title = getArguments().getString("Title");
-//                String author = getArguments().getString("Author");
-//                fillAllFields(rootView, helper, title, author);
-//            }
-//        }
 
         // Actions for change cover button
         Button setImageButton = (Button) rootView.findViewById(R.id.set_image_button);
@@ -114,23 +100,23 @@ public class AddBookActivityFragment extends Fragment {
                 byte[] cover = Util.getBytesFromDrawable(coverView.getDrawable());
 
                 if (author.matches("")) {
-                    Toast.makeText(getActivity(), "Please enter the author field", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), PLEASE_ENTER_THE_AUTHOR_FIELD, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (title.matches("")) {
-                    Toast.makeText(getActivity(), "Please enter the title field", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), PLEASE_ENTER_THE_TITLE_FIELD, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                Book book = new Book(title, author, description, cover);
+                Book book = new Book(id_,title, author, description, cover);
 
                 // in case user edit information just update data
-                if (isEditMode_){
-                   long id = helper.getId(book.getTitle(),book.getAuthor());
-                    helper.updateBook(id,book);
+                if (id_ != null) {
+                    helper.updateBook(id_, book);
+                } else {
+                    helper.addBook(book);
                 }
-                helper.addBook(book);
 
                 Intent intent = new Intent(getActivity(), BooksListActivity.class);
                 startActivity(intent);
@@ -146,7 +132,7 @@ public class AddBookActivityFragment extends Fragment {
                 ViewGroup group = (ViewGroup) rootView.findViewById(R.id.add_book_layout);
                 clearForm(group);
 
-                Intent intent = new Intent(getActivity(),MainActivity.class);
+                Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
             }
         });
@@ -166,19 +152,20 @@ public class AddBookActivityFragment extends Fragment {
         }
     }
 
-    private void fillAllFields(View view,LibraryDatabaseHelper helper, String title,String author ){
-        Book book = helper.getBook(title,author);
+    private void fillAllFields(View view, LibraryDatabaseHelper helper, int id) {
 
-        EditText titleEditText = (EditText)view.findViewById(R.id.title_edit_text);
+        Book book = helper.getBookById(id);
+
+        EditText titleEditText = (EditText) view.findViewById(R.id.title_edit_text);
         titleEditText.setText(book.getTitle());
 
-        EditText authorEditText = (EditText)view.findViewById(R.id.author_edit_text);
+        EditText authorEditText = (EditText) view.findViewById(R.id.author_edit_text);
         authorEditText.setText(book.getAuthor());
 
-        EditText descriptionEditText = (EditText)view.findViewById(R.id.description_edit_text);
+        EditText descriptionEditText = (EditText) view.findViewById(R.id.description_edit_text);
         descriptionEditText.setText(book.getDescription());
 
-        ImageView coverView = (ImageView)view.findViewById(R.id.cover_image_view);
+        ImageView coverView = (ImageView) view.findViewById(R.id.cover_image_view);
         coverView.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
 
     }

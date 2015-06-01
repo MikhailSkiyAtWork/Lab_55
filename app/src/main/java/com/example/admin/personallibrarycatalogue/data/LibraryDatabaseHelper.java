@@ -52,10 +52,10 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public long getId(String title, String author){
+    public int getId(String title, String author){
         if ((title != null)&&(author != null)){
 
-            long id = -1;
+            int id = -1;
             SQLiteDatabase db = this.getWritableDatabase();
 
             String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME +
@@ -65,7 +65,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
             Cursor cursor = db.rawQuery(selectQuery,null);
 
             if (cursor.moveToFirst()) {
-                id = (cursor.getLong(cursor.getColumnIndex(BooksTable._ID)));
+                id = (cursor.getInt(cursor.getColumnIndex(BooksTable._ID)));
             }
 
             db.close();
@@ -74,6 +74,33 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         else {
             throw new NullPointerException("Passed title or author is null");
         }
+    }
+
+    public Book getBookById(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Book book = new Book();
+
+        String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME +
+                " WHERE " + BooksTable._ID + " = " + id;
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
+            book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
+
+            if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
+                book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
+            }
+
+            if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
+                book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
+            }
+        }
+
+        db.close();
+        return book;
     }
 
     public Book getBook(String title, String author){
@@ -109,8 +136,17 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateBook(long id, Book book){
+    public void updateBook(long id, Book book) {
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        ContentValues values = new ContentValues();
+        values.put(BooksTable.TITLE, book.getTitle());
+        values.put(BooksTable.AUTHOR, book.getAuthor());
+        values.put(BooksTable.DESCRIPTION, book.getDescription());
+        values.put(BooksTable.COVER, book.getCover());
+
+        db.update(BooksTable.TABLE_NAME, values, BooksTable._ID + "=" + id, null);
+        db.close();
     }
 
     public void addBook(Book book) {
