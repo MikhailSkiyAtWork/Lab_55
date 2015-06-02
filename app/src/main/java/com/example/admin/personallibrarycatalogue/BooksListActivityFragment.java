@@ -28,8 +28,6 @@ import java.util.Objects;
  */
 public class BooksListActivityFragment extends Fragment {
 
-    private final static String TITLE = "Title";
-    private final static String AUTHOR = "Author";
     private final static String ID = "id";
     private ListView listView_;
     private BooksListAdapter booksListAdapter_;
@@ -118,9 +116,9 @@ public class BooksListActivityFragment extends Fragment {
         String author = book.getAuthor();
         String title = book.getTitle();
 
-        int returned_id = helper_.getId(title, author);
+        int returnedId = helper_.getId(title, author);
         // Delete from database
-        helper_.deleteBook(returned_id);
+        helper_.deleteBook(returnedId);
         // Delete from adapter
         booksListAdapter_.remove(book);
     }

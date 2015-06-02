@@ -1,5 +1,7 @@
 package com.example.admin.personallibrarycatalogue;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
@@ -22,27 +24,18 @@ public class MainActivity extends ActionBarActivity {
         preferences = getSharedPreferences(APP_NAME, MODE_PRIVATE);
 
         // If app was launched first time show user sugestion to add book
-        if ((savedInstanceState == null) &&  (preferences.getBoolean(FIRSTRUN ,true)))  {
+        if (preferences.getBoolean(FIRSTRUN, true)) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment, new FirstLaunchFragment())
                     .commit();
+
+            preferences.edit().putBoolean(FIRSTRUN, false).commit();
+
         } else {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment, new BooksListActivityFragment())
-                    .commit();
+            Intent intent = new Intent(this, BooksListActivity.class);
+            startActivity(intent);
         }
     }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-
-        if (preferences.getBoolean(FIRSTRUN,true)){
-            // ToDo something
-            Log.d("onResume","In On Resume");
-        }
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
