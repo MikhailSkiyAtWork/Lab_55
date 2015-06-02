@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.support.v7.internal.widget.AdapterViewCompat;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -28,6 +30,8 @@ public class BooksListActivityFragment extends Fragment {
 
     private final static String TITLE = "Title";
     private final static String AUTHOR = "Author";
+    private final static String ID = "id";
+    private ListView listView_;
     private BooksListAdapter booksListAdapter_;
     private LibraryDatabaseHelper helper_;
 
@@ -44,27 +48,17 @@ public class BooksListActivityFragment extends Fragment {
         List<Book> booksList = new ArrayList<Book>();
         booksList = helper_.getAllBooks();
 
-        final ListView listView = (ListView) rootView.findViewById(R.id.books_list_view);
+        listView_ = (ListView) rootView.findViewById(R.id.books_list_view);
         booksListAdapter_ = new BooksListAdapter(this.getActivity(), booksList);
-        listView.setAdapter(booksListAdapter_);
+        listView_.setAdapter(booksListAdapter_);
 
         // Set ContextMenu for listView
-        registerForContextMenu(listView);
+        registerForContextMenu(listView_);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView_.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Book book = (Book) parent.getItemAtPosition(position);
-                String author = book.getAuthor();
-                String title = book.getTitle();
-
-                Intent intent = new Intent();
-                intent.setClass(getActivity(), AddBookActivity.class);
-
-                int returned_id = helper_.getId(title, author);
-
-                intent.putExtra("id",returned_id);
-                startActivity(intent);
+                changeBook(parent, position);
             }
         });
 
@@ -72,40 +66,62 @@ public class BooksListActivityFragment extends Fragment {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo){
-        super.onCreateContextMenu(menu,v,menuInfo);
-       // if (v.getId() == R.id.book_list_item){
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
-            menu.setHeaderTitle(R.string.Menu);
-            menu.add(R.string.edit_book_action);
-            menu.add(R.string.delete_book_action);
-       // }
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        menu.setHeaderTitle(R.string.Menu);
+        inflater.inflate(R.menu.context_menu, menu);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-//        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-//        int menuItemIndex = item.getItemId();
-//      //  String[] menuItems = getResources().getStringArray(R.array.menu);
-//       // String menuItemName = menuItems[menuItemIndex];
-        switch (item.getItemId())
-        {
-            case R.string.edit_book_action:
-                
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+        switch (item.getItemId()) {
+            case R.id.edit_book:
+                changeBook(listView_, info.position);
                 break;
 
-            case R.string.delete_book_action:
+            case R.id.delete_book:
+                deleteBook(listView_, info.position);
+                booksListAdapter_.notifyDataSetChanged();
                 break;
 
             default:
                 return super.onContextItemSelected(item);
         }
-
-
-
         return true;
     }
 
+    /**
+     * Set up activity for changing some information about book (title, author etc.)
+     *
+     * @param parent   AdapterView (could be a ListView, GridView, Spinner)
+     * @param position Clicked item position
+     */
+    public void changeBook(AdapterView<?> parent, int position) {
+        Book book = (Book) parent.getItemAtPosition(position);
+        String author = book.getAuthor();
+        String title = book.getTitle();
 
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), AddBookActivity.class);
 
+        int returned_id = helper_.getId(title, author);
+
+        intent.putExtra(ID, returned_id);
+        startActivity(intent);
+    }
+
+    public void deleteBook(AdapterView<?> parent, int position) {
+        Book book = (Book) parent.getItemAtPosition(position);
+        String author = book.getAuthor();
+        String title = book.getTitle();
+
+        int returned_id = helper_.getId(title, author);
+        // Delete from database
+        helper_.deleteBook(returned_id);
+        // Delete from adapter
+        booksListAdapter_.remove(book);
+    }
 }

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.admin.personallibrarycatalogue.FirstLaunchFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+
     <TextView
         android:text="@string/warning"
         android:layout_centerHorizontal="true"

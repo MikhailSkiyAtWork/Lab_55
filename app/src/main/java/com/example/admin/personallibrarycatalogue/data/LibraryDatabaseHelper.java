@@ -76,6 +76,11 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void deleteBook(int id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(BooksTable.TABLE_NAME,BooksTable._ID + " = " + id,null);
+    }
+
     public Book getBookById(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
 
