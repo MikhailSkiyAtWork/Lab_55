@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -19,12 +17,12 @@ import java.io.ByteArrayOutputStream;
 /**
  * Created by Admin on 26.05.2015.
  */
-public class TestDb extends AndroidTestCase {
+public class DatabaseTest extends AndroidTestCase {
 
     private static final String BOOK_TITLE = "Thinking in Java";
     private static final String BOOK_AUTHOR = "Bruce Eckel";
     private static final String BOOK_DESCRIPTION = "Thinking in Java is a book about the Java programming language, written by Bruce Eckel and first published in 1998";
-    public static final String LOG_TAG = TestDb.class.getSimpleName();
+    public static final String LOG_TAG = DatabaseTest.class.getSimpleName();
 
 
     public void testCreateDb() throws Throwable {

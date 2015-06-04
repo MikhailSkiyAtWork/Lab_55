@@ -27,6 +27,11 @@
             android:name=".AddBookActivity"
             android:label="@string/title_activity_add_book" >
         </activity>
+
+        <provider
+            android:name=".data.BooksProvider"
+            android:authorities="com.example.admin.personallibrarycatalogue.app" />
+
     </application>
 
 </manifest>

@@ -1,6 +1,13 @@
 package com.example.admin.personallibrarycatalogue;
 
+
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.internal.widget.AdapterViewCompat;
@@ -16,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.admin.personallibrarycatalogue.data.Book;
+import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
 import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
 
 import java.util.ArrayList;
@@ -26,14 +34,46 @@ import java.util.Objects;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class BooksListActivityFragment extends Fragment {
+public class BooksListActivityFragment extends Fragment implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final int LIBRARY_LOADER = 0;
     private final static String ID = "id";
     private ListView listView_;
     private BooksListAdapter booksListAdapter_;
     private LibraryDatabaseHelper helper_;
 
+    private static final String[] BOOK_COLUMNS = {
+
+            DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID,
+            DatabaseContract.BooksTable.TITLE,
+            DatabaseContract.BooksTable.AUTHOR,
+            DatabaseContract.BooksTable.DESCRIPTION,
+            DatabaseContract.BooksTable.COVER
+    };
+
     public BooksListActivityFragment() {
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(
+                getActivity(),
+                DatabaseContract.BooksTable.CONTENT_URI,
+                BOOK_COLUMNS,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        booksListAdapter_.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        booksListAdapter_.swapCursor(null);
     }
 
     @Override
@@ -41,13 +81,9 @@ public class BooksListActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_books_list, container, false);
 
-        helper_ = new LibraryDatabaseHelper(getActivity());
-
-        List<Book> booksList = new ArrayList<Book>();
-        booksList = helper_.getAllBooks();
 
         listView_ = (ListView) rootView.findViewById(R.id.books_list_view);
-        booksListAdapter_ = new BooksListAdapter(this.getActivity(), booksList);
+        booksListAdapter_ = new BooksListAdapter(getActivity(), null, 0);
         listView_.setAdapter(booksListAdapter_);
 
         // Set ContextMenu for listView
@@ -56,11 +92,18 @@ public class BooksListActivityFragment extends Fragment {
         listView_.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                changeBook(parent, position);
+                Cursor cursor = (Cursor) listView_.getItemAtPosition(position);
+                changeBook(cursor);
             }
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(LIBRARY_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -74,14 +117,15 @@ public class BooksListActivityFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        Cursor cursor = (Cursor) listView_.getItemAtPosition(info.position);
 
         switch (item.getItemId()) {
             case R.id.edit_book:
-                changeBook(listView_, info.position);
+                changeBook(cursor);
                 break;
 
             case R.id.delete_book:
-                deleteBook(listView_, info.position);
+                deleteBook(cursor);
                 booksListAdapter_.notifyDataSetChanged();
                 break;
 
@@ -93,33 +137,48 @@ public class BooksListActivityFragment extends Fragment {
 
     /**
      * Set up activity for changing some information about book (title, author etc.)
-     *
-     * @param parent   AdapterView (could be a ListView, GridView, Spinner)
-     * @param position Clicked item position
      */
-    public void changeBook(AdapterView<?> parent, int position) {
-        Book book = (Book) parent.getItemAtPosition(position);
+    public void changeBook(Cursor cursor) {
+        Book book = LibraryDatabaseHelper.getBook(cursor);
         String author = book.getAuthor();
         String title = book.getTitle();
 
         Intent intent = new Intent();
         intent.setClass(getActivity(), AddBookActivity.class);
 
-        int returned_id = helper_.getId(title, author);
+        int returned_id = getBookIdByTitleAndAuthor(title, author);
 
         intent.putExtra(ID, returned_id);
         startActivity(intent);
     }
 
-    public void deleteBook(AdapterView<?> parent, int position) {
-        Book book = (Book) parent.getItemAtPosition(position);
+    public void deleteBook(Cursor cursor) {
+        Book book = LibraryDatabaseHelper.getBook(cursor);
         String author = book.getAuthor();
         String title = book.getTitle();
 
-        int returnedId = helper_.getId(title, author);
+        int bookId = getBookIdByTitleAndAuthor(title, author);
+
+        Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(bookId);
         // Delete from database
-        helper_.deleteBook(returnedId);
-        // Delete from adapter
-        booksListAdapter_.remove(book);
+        getActivity().getContentResolver().delete(bookWithIdUri, null, null);
+    }
+
+    public int getBookIdByTitleAndAuthor(String title, String author) {
+        Uri uri = DatabaseContract.BooksTable.CONTENT_URI;
+        String selection = DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable.TITLE + " = ? AND " + DatabaseContract.BooksTable.AUTHOR + " = ? ";
+        Cursor cursor = getActivity().getContentResolver().query(
+                uri,
+                null,
+                selection,
+                new String[]{title, author},
+                null);
+
+        Book book = new Book();
+        book = LibraryDatabaseHelper.getBook(cursor);
+
+        int bookId = book.getId();
+        return bookId;
+
     }
 }

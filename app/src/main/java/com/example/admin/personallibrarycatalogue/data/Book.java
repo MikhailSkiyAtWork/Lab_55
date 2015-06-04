@@ -42,6 +42,8 @@ public class Book {
         return id_;
     }
 
+    public void setId(int id){this.id_ = id;}
+
     public String getTitle(){
         return title_;
     }

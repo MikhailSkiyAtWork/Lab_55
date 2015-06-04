@@ -1,6 +1,8 @@
 package com.example.admin.personallibrarycatalogue;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.UriMatcher;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -15,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.admin.personallibrarycatalogue.data.Book;
+import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
 import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
 
 import java.io.FileNotFoundException;
@@ -29,11 +32,11 @@ public class AddBookActivityFragment extends Fragment {
     private final static String TITLE = "Title";
     private final static String AUTHOR = "Author";
     private final static String PLEASE_ENTER_THE_AUTHOR_FIELD = "Please enter the author field";
-    private final static String PLEASE_ENTER_THE_TITLE_FIELD =  "Please enter the title field";
+    private final static String PLEASE_ENTER_THE_TITLE_FIELD = "Please enter the title field";
     private ImageView imageView_;
     private final int SELECT_PHOTO = 1;
     private boolean isEditMode_ = false;
-    private Integer id_ ;
+    private Integer id_;
 
     public AddBookActivityFragment newInstance(String title, String author) {
         AddBookActivityFragment fragment = new AddBookActivityFragment();
@@ -109,13 +112,21 @@ public class AddBookActivityFragment extends Fragment {
                     return;
                 }
 
-                Book book = new Book(id_,title, author, description, cover);
+                Book book = new Book(id_, title, author, description, cover);
 
                 // in case user edit information just update data
                 if (id_ != null) {
-                    helper.updateBook(id_, book);
+
+                    Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id_);
+                    ContentValues values = LibraryDatabaseHelper.createBooksValues(book);
+                    getActivity().getContentResolver().update(bookWithIdUri, values, null, null);
+
                 } else {
-                    helper.addBook(book);
+
+                    Uri bookWithIdUri = DatabaseContract.BooksTable.CONTENT_URI;
+                    ContentValues values = LibraryDatabaseHelper.createBooksValues(book);
+                    getActivity().getContentResolver().insert(bookWithIdUri, values);
+
                 }
 
                 Intent intent = new Intent(getActivity(), BooksListActivity.class);

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 
 import com.example.admin.personallibrarycatalogue.data.DatabaseContract.BooksTable;
 
@@ -194,4 +195,55 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return bookList;
     }
+
+    public static Book getBook(Cursor cursor) {
+        Book book = new Book();
+        book.setId(cursor.getInt(cursor.getColumnIndex(BooksTable._ID)));
+        book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
+        book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
+
+        if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
+            book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
+        }
+
+        if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
+            book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
+        }
+
+        return book;
+    }
+
+    public static List<Book> getBooksList(Cursor cursor){
+        List<Book> bookList = new ArrayList<Book>();
+
+        if (cursor.moveToFirst()) {
+            do {
+                Book book = new Book();
+                book.setId(cursor.getInt(cursor.getColumnIndex(BooksTable._ID)));
+                book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
+                book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
+
+                if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
+                    book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
+                }
+
+                if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
+                    book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
+                }
+                bookList.add(book);
+            } while (cursor.moveToNext());
+        }
+        return bookList;
+    }
+
+
+    public static ContentValues createBooksValues(Book book) {
+        ContentValues booksValues = new ContentValues();
+        booksValues.put(DatabaseContract.BooksTable.TITLE, book.getTitle());
+        booksValues.put(DatabaseContract.BooksTable.AUTHOR, book.getAuthor());
+        booksValues.put(DatabaseContract.BooksTable.DESCRIPTION, book.getDescription());
+        booksValues.put(DatabaseContract.BooksTable.COVER, book.getCover());
+        return booksValues;
+    }
+
 }
