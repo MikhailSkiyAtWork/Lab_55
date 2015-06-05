@@ -48,7 +48,9 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
             DatabaseContract.BooksTable.TITLE,
             DatabaseContract.BooksTable.AUTHOR,
             DatabaseContract.BooksTable.DESCRIPTION,
-            DatabaseContract.BooksTable.COVER
+            DatabaseContract.BooksTable.COVER,
+            DatabaseContract.BooksTable.YEAR,
+            DatabaseContract.BooksTable.ISBN
     };
 
     public BooksListActivityFragment() {
@@ -140,45 +142,20 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
      */
     public void changeBook(Cursor cursor) {
         Book book = LibraryDatabaseHelper.getBook(cursor);
-        String author = book.getAuthor();
-        String title = book.getTitle();
+        int id = book.getId();
 
         Intent intent = new Intent();
         intent.setClass(getActivity(), AddBookActivity.class);
-
-        int returned_id = getBookIdByTitleAndAuthor(title, author);
-
-        intent.putExtra(ID, returned_id);
+        intent.putExtra(ID, id);
         startActivity(intent);
     }
 
     public void deleteBook(Cursor cursor) {
         Book book = LibraryDatabaseHelper.getBook(cursor);
-        String author = book.getAuthor();
-        String title = book.getTitle();
+        int id = book.getId();
 
-        int bookId = getBookIdByTitleAndAuthor(title, author);
-
-        Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(bookId);
-        // Delete from database
+        Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id);
+        // Delete from database with help of Content Provider
         getActivity().getContentResolver().delete(bookWithIdUri, null, null);
-    }
-
-    public int getBookIdByTitleAndAuthor(String title, String author) {
-        Uri uri = DatabaseContract.BooksTable.CONTENT_URI;
-        String selection = DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable.TITLE + " = ? AND " + DatabaseContract.BooksTable.AUTHOR + " = ? ";
-        Cursor cursor = getActivity().getContentResolver().query(
-                uri,
-                null,
-                selection,
-                new String[]{title, author},
-                null);
-
-        Book book = new Book();
-        book = LibraryDatabaseHelper.getBook(cursor);
-
-        int bookId = book.getId();
-        return bookId;
-
     }
 }

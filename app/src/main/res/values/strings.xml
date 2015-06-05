@@ -6,6 +6,8 @@
     <string name="author">Author*</string>
     <string name="title">Title*</string>
     <string name="description">Description</string>
+    <string name="year">Year</string>
+    <string name="isbn">ISBN</string>
     <string name="cover">Cover</string>
     <string name="warning">There are no books in library</string>
 

@@ -3,6 +3,7 @@ package com.example.admin.personallibrarycatalogue;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.UriMatcher;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -33,9 +34,9 @@ public class AddBookActivityFragment extends Fragment {
     private final static String AUTHOR = "Author";
     private final static String PLEASE_ENTER_THE_AUTHOR_FIELD = "Please enter the author field";
     private final static String PLEASE_ENTER_THE_TITLE_FIELD = "Please enter the title field";
+    private static final String bookSelectionQuery = DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID + " = ?";
     private ImageView imageView_;
     private final int SELECT_PHOTO = 1;
-    private boolean isEditMode_ = false;
     private Integer id_;
 
     public AddBookActivityFragment newInstance(String title, String author) {
@@ -58,15 +59,11 @@ public class AddBookActivityFragment extends Fragment {
 
 
         final View rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
-        final LibraryDatabaseHelper helper = new LibraryDatabaseHelper(getActivity());
-
         Bundle extras = getActivity().getIntent().getExtras();
 
         if (extras != null) {
-            isEditMode_ = true;
             id_ = getArguments().getInt("id");
-
-            fillAllFields(rootView, helper, id_);
+            fillAllFields(rootView, id_);
         }
 
         imageView_ = (ImageView) rootView.findViewById(R.id.cover_image_view);
@@ -99,6 +96,17 @@ public class AddBookActivityFragment extends Fragment {
                 EditText descriptionEditText = (EditText) rootView.findViewById(R.id.description_edit_text);
                 String description = descriptionEditText.getText().toString();
 
+                EditText yearEditText = (EditText) rootView.findViewById(R.id.year_edit_text);
+
+                int year = 0;
+
+                if (yearEditText.getText().toString().length()>0) {
+                     year = Integer.parseInt(yearEditText.getText().toString());
+                }
+
+                EditText isbnEditText = (EditText) rootView.findViewById(R.id.isbn_edit_text);
+                String isbn = isbnEditText.getText().toString();
+
                 ImageView coverView = (ImageView) rootView.findViewById(R.id.cover_image_view);
                 byte[] cover = Util.getBytesFromDrawable(coverView.getDrawable());
 
@@ -112,7 +120,7 @@ public class AddBookActivityFragment extends Fragment {
                     return;
                 }
 
-                Book book = new Book(id_, title, author, description, cover);
+                Book book = new Book(id_, title, author, description, cover, year, isbn);
 
                 // in case user edit information just update data
                 if (id_ != null) {
@@ -126,18 +134,16 @@ public class AddBookActivityFragment extends Fragment {
                     Uri bookWithIdUri = DatabaseContract.BooksTable.CONTENT_URI;
                     ContentValues values = LibraryDatabaseHelper.createBooksValues(book);
                     getActivity().getContentResolver().insert(bookWithIdUri, values);
-
                 }
 
                 Intent intent = new Intent(getActivity(), BooksListActivity.class);
                 startActivity(intent);
-
             }
         });
 
         // Actions for cancel button (clear fields and leave activity)
         Button cancelButton = (Button) rootView.findViewById(R.id.cancel);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
+       cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ViewGroup group = (ViewGroup) rootView.findViewById(R.id.add_book_layout);
@@ -163,9 +169,17 @@ public class AddBookActivityFragment extends Fragment {
         }
     }
 
-    private void fillAllFields(View view, LibraryDatabaseHelper helper, int id) {
+    private void fillAllFields(View view, int id) {
 
-        Book book = helper.getBookById(id);
+
+        Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id);
+        Cursor cursor = getActivity().getContentResolver().query(bookWithIdUri,
+                null,
+                bookSelectionQuery,
+                new String[]{id_.toString()},
+                null);
+
+        Book book = LibraryDatabaseHelper.getBook(cursor);
 
         EditText titleEditText = (EditText) view.findViewById(R.id.title_edit_text);
         titleEditText.setText(book.getTitle());
@@ -176,11 +190,16 @@ public class AddBookActivityFragment extends Fragment {
         EditText descriptionEditText = (EditText) view.findViewById(R.id.description_edit_text);
         descriptionEditText.setText(book.getDescription());
 
+        EditText yearEditText = (EditText)view.findViewById(R.id.year_edit_text);
+        yearEditText.setText(Integer.toString(book.getYear()));
+
+        EditText isbnEditText = (EditText)view.findViewById(R.id.isbn_edit_text);
+        isbnEditText.setText(book.getIsbn());
+
         ImageView coverView = (ImageView) view.findViewById(R.id.cover_image_view);
         coverView.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
 
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {

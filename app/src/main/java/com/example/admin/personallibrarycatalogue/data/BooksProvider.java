@@ -29,6 +29,7 @@ public class BooksProvider extends ContentProvider {
 
     private Cursor getBookById(Uri uri,String[] projection, String sortOrder){
         int bookId = DatabaseContract.getBookIdFromUri(uri);
+        queryBuilder_.setTables(DatabaseContract.BooksTable.TABLE_NAME);
 
         return queryBuilder_.query(helper_.getReadableDatabase(),
                 projection,

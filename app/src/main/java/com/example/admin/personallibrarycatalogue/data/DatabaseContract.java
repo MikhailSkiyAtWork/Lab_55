@@ -36,6 +36,8 @@ public class DatabaseContract {
         public static final String AUTHOR = "author";
         public static final String COVER = "cover";
         public static final String DESCRIPTION = "description";
+        public static final String YEAR = "year";
+        public static final String ISBN = "isbn";
     }
 
     public static int getBookIdFromUri(Uri uri){
