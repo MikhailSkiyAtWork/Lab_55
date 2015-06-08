@@ -27,5 +27,10 @@
     <string name="Menu">Menu</string>
     <string name="edit_book_action">Edit</string>
     <string name="delete_book_action">Delete</string>
+    <string name="share_in_twitter_action">Share in twitter</string>
+
+    <!-- Labels for prompt window -->
+    <string name="share_label">Let your friends know what's going on!</string>
+
 
 </resources>

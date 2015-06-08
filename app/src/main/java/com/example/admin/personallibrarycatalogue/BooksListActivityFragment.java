@@ -1,7 +1,10 @@
 package com.example.admin.personallibrarycatalogue;
 
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.app.LoaderManager;
@@ -26,6 +29,7 @@ import com.example.admin.personallibrarycatalogue.data.Book;
 import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
 import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
 
+import java.security.AlgorithmParameterGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +45,7 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
     private ListView listView_;
     private BooksListAdapter booksListAdapter_;
     private LibraryDatabaseHelper helper_;
+    private EditText editTextMainScreen_;
 
     private static final String[] BOOK_COLUMNS = {
 
@@ -130,6 +135,8 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
                 deleteBook(cursor);
                 booksListAdapter_.notifyDataSetChanged();
                 break;
+            case R.id.share_in_twitter:
+                askOAuth();
 
             default:
                 return super.onContextItemSelected(item);
@@ -157,5 +164,28 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
         Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id);
         // Delete from database with help of Content Provider
         getActivity().getContentResolver().delete(bookWithIdUri, null, null);
+    }
+
+    public void lauchPrompt(Context context){
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        View promptView = layoutInflater.inflate(R.layout.prompt, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        alertDialogBuilder.setView(promptView);
+        final EditText inputText = (EditText) promptView.findViewById(R.id.share_input);
+
+        // setup a dialog window
+        alertDialogBuilder.setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                // get user input and set it to result
+                editTextMainScreen_.setText(inputText.getText());
+            }
+        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+            }
+        });
     }
 }
