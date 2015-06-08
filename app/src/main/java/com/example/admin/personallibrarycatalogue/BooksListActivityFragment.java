@@ -136,7 +136,7 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
                 booksListAdapter_.notifyDataSetChanged();
                 break;
             case R.id.share_in_twitter:
-                askOAuth();
+              //  askOAuth();
 
             default:
                 return super.onContextItemSelected(item);

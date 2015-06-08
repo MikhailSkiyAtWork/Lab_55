@@ -30,7 +30,7 @@
     <string name="share_in_twitter_action">Share in twitter</string>
 
     <!-- Labels for prompt window -->
-    <string name="share_label">Let your friends know what's going on!</string>
+    <string name="share_label">Let your friends know what\'s going on!</string>
 
 
 </resources>
