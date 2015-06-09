@@ -5,8 +5,7 @@ package com.example.admin.personallibrarycatalogue;
  */
 public class Constants {
 
-    public static final String CONSUMER_KEY = "RO9WR8PmKG5G8IUFDruZjf4CX";
-    public static final String CONSUMER_SECRET = "zfXLmbBb1LjrOyugs5nRyxTz0CWbRdv8XPclsXigV3ThH41ZY7";
+
 
     public static final String REQUEST_URL = "http://api.twitter.com/oauth/request_token";
     public static final String ACCESS_URL = "http://api.twitter.com/oauth/access_token";
