@@ -6,7 +6,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -24,6 +26,8 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.os.Handler;
+import android.widget.Toast;
 
 import com.example.admin.personallibrarycatalogue.data.Book;
 import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
@@ -33,6 +37,9 @@ import java.security.AlgorithmParameterGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.LogRecord;
+
+import twitter4j.Twitter;
 
 
 /**
@@ -44,8 +51,9 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
     private final static String ID = "id";
     private ListView listView_;
     private BooksListAdapter booksListAdapter_;
-    private LibraryDatabaseHelper helper_;
-    private EditText editTextMainScreen_;
+    private SharedPreferences preferences_;
+    private final Handler twitterHandler_ = new Handler();
+
 
     private static final String[] BOOK_COLUMNS = {
 
@@ -83,10 +91,20 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
         booksListAdapter_.swapCursor(null);
     }
 
+    final Runnable updateTwitterNotification = new Runnable() {
+        public void run() {
+            Toast.makeText(getActivity(), "Tweet sent !", Toast.LENGTH_LONG).show();
+        }
+    };
+
+
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_books_list, container, false);
+
+
+        this.preferences_=PreferenceManager.getDefaultSharedPreferences(getActivity());
 
 
         listView_ = (ListView) rootView.findViewById(R.id.books_list_view);
@@ -135,8 +153,9 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
                 deleteBook(cursor);
                 booksListAdapter_.notifyDataSetChanged();
                 break;
+
             case R.id.share_in_twitter:
-              //  askOAuth();
+                lauchPrompt(getActivity());
 
             default:
                 return super.onContextItemSelected(item);
@@ -173,19 +192,54 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
         alertDialogBuilder.setView(promptView);
         final EditText inputText = (EditText) promptView.findViewById(R.id.share_input);
 
+        this.preferences_ = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
         // setup a dialog window
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                // get user input and set it to result
-                editTextMainScreen_.setText(inputText.getText());
-            }
-        })
+                    public void onClick(DialogInterface dialog, int id) {
+                        // get user input and set it to result
+                        String twit = (inputText.getText().toString());
+                        if (TwitterUtils.isAuthenticated(preferences_)) {
+                            sendTweet();
+                        } else {
+                            Intent intent = new Intent(getActivity(),PrepareRequestTokenActivity.class);
+                            intent.putExtra("tweet_msg",getTweetMsg());
+                            startActivity(intent);
+                        }
+                    }
+                })
                 .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener(){
-                        public void onClick(DialogInterface dialog, int id){
-                        dialog.cancel();
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+
+        // create an alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private String getTweetMsg() {
+       // final EditText inputText = (EditText) getActivity().findViewById(R.id.share_input);
+       // String twit = (inputText.getText().toString());
+        String twit = "Hello World!!";
+        return twit;
+    }
+
+    public void sendTweet(){
+        Thread t = new Thread(){
+            public void run(){
+                try {
+                    TwitterUtils.sendTweet(preferences_,getTweetMsg());
+                    twitterHandler_.post(updateTwitterNotification);
+                } catch (Exception ex){
+                    ex.printStackTrace();
+                }
             }
-        });
+        };
+        t.start();
     }
 }

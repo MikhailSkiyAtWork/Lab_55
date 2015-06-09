@@ -19,10 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".BooksListActivity"
             android:label="@string/title_activity_books_list" >
         </activity>
+
         <activity
             android:name=".AddBookActivity"
             android:label="@string/title_activity_add_book" >
@@ -31,6 +33,15 @@
         <provider
             android:name=".data.BooksProvider"
             android:authorities="com.example.admin.personallibrarycatalogue.app" />
+
+        <activity android:name=".PrepareRequestTokenActivity" android:launchMode="singleTask">>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="x-oauthflow-twitter" android:host="callback" />
+            </intent-filter>
+        </activity>
 
     </application>
 
