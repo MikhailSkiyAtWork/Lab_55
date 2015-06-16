@@ -1,3 +1,6 @@
+/**
+ * Created by Mikhail Valuyskiy on 28.05.2015.
+ */
 package com.example.admin.personallibrarycatalogue;
 
 import android.graphics.Bitmap;
@@ -9,7 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 /**
- * Created by Mikhail Valuyskiy on 28.05.2015.
+ * Class which helps convert image from byte[] to Bitmap and vice-versa
  */
 public class Util {
 

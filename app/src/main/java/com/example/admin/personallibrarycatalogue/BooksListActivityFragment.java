@@ -3,16 +3,13 @@ package com.example.admin.personallibrarycatalogue;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v7.internal.widget.AdapterViewCompat;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.admin.personallibrarycatalogue.data.Book;
@@ -20,15 +17,13 @@ import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
 
 /**
- * A placeholder fragment containing a simple view.
+ * The fragment which responsible for showing list of all books
  */
 public class BooksListActivityFragment extends Fragment {
 
-    private final static String ID = "id";
+    private final static String EXTRA_ID = "id";
     private ListView listView_;
     private BooksListAdapter booksListAdapter_;
     private LibraryDatabaseHelper helper_;
@@ -56,7 +51,7 @@ public class BooksListActivityFragment extends Fragment {
         listView_.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                changeBook(parent, position);
+                updateBook(parent, position);
             }
         });
 
@@ -77,7 +72,7 @@ public class BooksListActivityFragment extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.edit_book:
-                changeBook(listView_, info.position);
+                updateBook(listView_, info.position);
                 break;
 
             case R.id.delete_book:
@@ -97,28 +92,19 @@ public class BooksListActivityFragment extends Fragment {
      * @param parent   AdapterView (could be a ListView, GridView, Spinner)
      * @param position Clicked item position
      */
-    public void changeBook(AdapterView<?> parent, int position) {
+    public void updateBook(AdapterView<?> parent, int position) {
         Book book = (Book) parent.getItemAtPosition(position);
-        String author = book.getAuthor();
-        String title = book.getTitle();
 
-        Intent intent = new Intent();
-        intent.setClass(getActivity(), AddBookActivity.class);
-
-        int returned_id = helper_.getId(title, author);
-
-        intent.putExtra(ID, returned_id);
+        Intent intent = new Intent(getActivity(), AddBookActivity.class);
+        intent.putExtra(EXTRA_ID, book.getId());
         startActivity(intent);
     }
 
     public void deleteBook(AdapterView<?> parent, int position) {
         Book book = (Book) parent.getItemAtPosition(position);
-        String author = book.getAuthor();
-        String title = book.getTitle();
 
-        int returnedId = helper_.getId(title, author);
         // Delete from database
-        helper_.deleteBook(returnedId);
+        helper_.deleteBook(book.getId());
         // Delete from adapter
         booksListAdapter_.remove(book);
     }

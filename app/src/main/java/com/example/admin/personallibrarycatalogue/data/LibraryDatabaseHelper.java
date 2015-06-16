@@ -51,32 +51,14 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public int getId(String title, String author) {
-        if ((title != null) && (author != null)) {
-
-            int id = -1;
-            SQLiteDatabase db = this.getWritableDatabase();
-
-            String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME +
-                    " WHERE " + BooksTable.TITLE + " =  \"" + title + "\"" +
-                    " AND " + BooksTable.AUTHOR + " =  \"" + author + "\"";
-
-            Cursor cursor = db.rawQuery(selectQuery, null);
-
-            if (cursor.moveToFirst()) {
-                id = (cursor.getInt(cursor.getColumnIndex(BooksTable._ID)));
-            }
-
-            db.close();
-            return id;
-        } else {
-            throw new NullPointerException("Passed title or author is null");
-        }
-    }
-
-    public void deleteBook(int id) {
+    public boolean deleteBook(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(BooksTable.TABLE_NAME, BooksTable._ID + " = " + id, null);
+        int rowsDeleted = db.delete(BooksTable.TABLE_NAME, BooksTable._ID + " = " + id, null);
+        if (rowsDeleted > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public Book getBookById(int id) {

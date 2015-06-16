@@ -13,7 +13,7 @@ import com.example.admin.personallibrarycatalogue.data.Book;
 import java.util.List;
 
 /**
- * Created by Admin on 27.05.2015.
+ * Created by Mikhail Valuyskiy on 25.05.2015.
  */
 public class BooksListAdapter extends ArrayAdapter<Book> {
 
@@ -45,7 +45,6 @@ public class BooksListAdapter extends ArrayAdapter<Book> {
         }
 
         viewHolder.authorTextView_.setText(getItem(position).getAuthor());
-
         viewHolder.titleTextView_.setText(getItem(position).getTitle());
 
         if (Util.getBitmapFromBytes(getItem(position).getCover()) != null) {

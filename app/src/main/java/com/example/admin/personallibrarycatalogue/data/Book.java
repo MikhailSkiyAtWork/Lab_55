@@ -1,16 +1,17 @@
-/**
- * Created by Mikhail Valuyskiy on 25.05.2015.
- */
 package com.example.admin.personallibrarycatalogue.data;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+/**
+ * Created by Mikhail Valuyskiy on 25.05.2015.
+ */
 public class Book {
 
     //region Private fields
-    @Nullable private Integer id_ = null;
+    @Nullable
+    private Integer id_ = null;
     private String title_;
     private String author_;
     private String description_;
@@ -33,7 +34,8 @@ public class Book {
         this.author_ = author;
     }
 
-    public Book(){}
+    public Book() {
+    }
     //endregion
 
     //region Accessor Methods
@@ -42,35 +44,35 @@ public class Book {
         return id_;
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return title_;
     }
 
-    public void setTitle(String title){
+    public void setTitle(String title) {
         this.title_ = title;
     }
 
-    public String getAuthor(){
+    public String getAuthor() {
         return author_;
     }
 
-    public void setAuthor(String author){
+    public void setAuthor(String author) {
         this.author_ = author;
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return description_;
     }
 
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description_ = description;
     }
 
-    public byte[] getCover(){
+    public byte[] getCover() {
         return this.cover_;
     }
 
-    public void setCover(byte[] cover){
+    public void setCover(byte[] cover) {
         this.cover_ = cover;
     }
     //endregion
