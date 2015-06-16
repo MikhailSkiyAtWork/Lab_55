@@ -1,6 +1,8 @@
 package com.example.admin.personallibrarycatalogue;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -8,14 +10,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 
 
 public class BooksListActivity extends ActionBarActivity {
+
+    public static Context contextOfApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_books_list);
+
+        contextOfApplication = getApplicationContext();
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment, new BooksListActivityFragment())
@@ -23,6 +31,20 @@ public class BooksListActivity extends ActionBarActivity {
         }
     }
 
+    public static Context getContextOfApplication(){
+        return contextOfApplication;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Uri uri = getIntent().getData();
+        if (uri != null && uri.toString().startsWith(ConstantValues.TWITTER_CALLBACK_URL)) {
+            String verifier = uri.getQueryParameter(ConstantValues.URL_PARAMETER_TWITTER_OAUTH_VERIFIER);
+            String status = ((BooksListActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment)).getStatus();
+            new TwitterGetAccessTokenTask().execute(verifier,status);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

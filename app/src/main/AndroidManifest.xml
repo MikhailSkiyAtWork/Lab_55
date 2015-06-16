@@ -3,7 +3,8 @@
     package="com.example.admin.personallibrarycatalogue" >
 
     <!-- To access Google+ APIs: -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -23,6 +24,14 @@
         <activity
             android:name=".BooksListActivity"
             android:label="@string/title_activity_books_list" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="app" android:host="ruswizaradlab.com"  />
+            </intent-filter>
+
         </activity>
 
         <activity
@@ -34,14 +43,6 @@
             android:name=".data.BooksProvider"
             android:authorities="com.example.admin.personallibrarycatalogue.app" />
 
-        <activity android:name=".PrepareRequestTokenActivity" android:launchMode="singleTask">>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="x-oauthflow-twitter" android:host="callback" />
-            </intent-filter>
-        </activity>
 
     </application>
 

@@ -31,6 +31,7 @@
 
     <!-- Labels for prompt window -->
     <string name="share_label">Let your friends know what\'s going on!</string>
+    <string name="info">Please write less then 140 symbols</string>
 
 
 </resources>
