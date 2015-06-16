@@ -1,12 +1,12 @@
+/**
+ * Created by Mikhail Valuyskiy on 25.05.2015.
+ */
 package com.example.admin.personallibrarycatalogue.data;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-/**
- * Created by Mikhail Valuyskiy on 25.05.2015.
- */
 public class Book {
 
     //region Private fields

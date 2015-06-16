@@ -10,30 +10,35 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.admin.personallibrarycatalogue.data.Book;
+import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends ActionBarActivity {
 
-    SharedPreferences preferences = null;
     private static final String APP_NAME = "com.example.admin.personallibrarycatalogue";
-    private static final String FIRSTRUN = "firstrun";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        preferences = getSharedPreferences(APP_NAME, MODE_PRIVATE);
+        LibraryDatabaseHelper helper_ = new LibraryDatabaseHelper(this);
+        List<Book> booksList = new ArrayList<Book>();
+        booksList = helper_.getAllBooks();
 
-        // If app was launched first time show user sugestion to add book
-        if (preferences.getBoolean(FIRSTRUN, true)) {
+        // If app was launched first time or there are no books, show user sugestion to add book
+        if (!(booksList.size() > 0)) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment, new FirstLaunchFragment())
                     .commit();
-
-            preferences.edit().putBoolean(FIRSTRUN, false).commit();
-
         } else {
             Intent intent = new Intent(this, BooksListActivity.class);
             startActivity(intent);
+            finish();
         }
     }
 
