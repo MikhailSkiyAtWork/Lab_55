@@ -61,17 +61,19 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Returns Book or null if there is no such book
+     */
     public Book getBookById(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-
-        Book book = new Book();
 
         String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME +
                 " WHERE " + BooksTable._ID + " = " + id;
 
         Cursor cursor = db.rawQuery(selectQuery, null);
-
+        Book book;
         if (cursor.moveToFirst()) {
+            book = new Book();
             book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
             book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
 
@@ -82,8 +84,10 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
             if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
                 book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
             }
+        } else {
+            return null;
         }
-
+        
         db.close();
         return book;
     }
