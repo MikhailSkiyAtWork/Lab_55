@@ -87,47 +87,15 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         } else {
             return null;
         }
-        
+
         db.close();
         return book;
     }
 
-    public Book getBook(String title, String author) {
-        if ((title != null) && (author != null)) {
-
-            Book book = new Book();
-            SQLiteDatabase db = this.getWritableDatabase();
-
-            String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME +
-                    " WHERE " + BooksTable.TITLE + " =  \"" + title + "\"" +
-                    " AND " + BooksTable.AUTHOR + " =  \"" + author + "\"";
-
-            Cursor cursor = db.rawQuery(selectQuery, null);
-
-            if (cursor.moveToFirst()) {
-                book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
-                book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
-
-                if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
-                    book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
-                }
-
-                if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
-                    book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
-                }
-            }
-
-            db.close();
-            return book;
-        } else {
-            throw new NullPointerException("Passed title object is null");
-        }
-    }
-
-    public void updateBook(long id, Book book) {
+    public void updateBook(Book book) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = putBookIntoContentValues(book);
-        db.update(BooksTable.TABLE_NAME, values, BooksTable._ID + "=" + id, null);
+        db.update(BooksTable.TABLE_NAME, values, BooksTable._ID + "=" + book.getId(), null);
         db.close();
     }
 
@@ -138,22 +106,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
             db.insert(BooksTable.TABLE_NAME, null, values);
             db.close();
         } else {
-            throw new NullPointerException("Passed book object is null");
+            throw new IllegalArgumentException("Passed book object is null");
         }
     }
-
-    /**
-     * Put values from object Book into ContentValues
-     */
-    public ContentValues putBookIntoContentValues(Book book) {
-        ContentValues values = new ContentValues();
-        values.put(BooksTable.TITLE, book.getTitle());
-        values.put(BooksTable.AUTHOR, book.getAuthor());
-        values.put(BooksTable.DESCRIPTION, book.getDescription());
-        values.put(BooksTable.COVER, book.getCover());
-        return values;
-    }
-
 
     public List<Book> getAllBooks() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -179,5 +134,17 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         }
         db.close();
         return bookList;
+    }
+
+    /**
+     * Put values from object Book into ContentValues
+     */
+    private ContentValues putBookIntoContentValues(Book book) {
+        ContentValues values = new ContentValues();
+        values.put(BooksTable.TITLE, book.getTitle());
+        values.put(BooksTable.AUTHOR, book.getAuthor());
+        values.put(BooksTable.DESCRIPTION, book.getDescription());
+        values.put(BooksTable.COVER, book.getCover());
+        return values;
     }
 }

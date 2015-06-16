@@ -113,7 +113,7 @@ public class AddBookActivityFragment extends Fragment {
 
                 // in case user edit information just update data
                 if (id_ != null) {
-                    helper.updateBook(id_, book);
+                    helper.updateBook(book);
                 } else {
                     helper.addBook(book);
                 }
