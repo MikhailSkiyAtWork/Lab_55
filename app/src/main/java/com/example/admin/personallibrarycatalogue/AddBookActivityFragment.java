@@ -1,9 +1,12 @@
 package com.example.admin.personallibrarycatalogue;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -29,6 +32,9 @@ import java.io.InputStream;
 public class AddBookActivityFragment extends Fragment {
 
     public final int SELECT_PHOTO = 1;
+    public final int WIDTH  = 72;
+    public final int HEIGHT = 60;
+
 
     @Nullable
     private Integer id_;
@@ -75,8 +81,16 @@ public class AddBookActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+
+                ComponentName activity = photoPickerIntent.resolveActivity(getActivity().getPackageManager());
                 photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+
+                if (activity != null) {
+                    startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+                } else {
+                    Toast.makeText(getActivity().getBaseContext(), "There are no activities for such intent",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -97,7 +111,11 @@ public class AddBookActivityFragment extends Fragment {
                 String description = descriptionEditText.getText().toString();
 
                 ImageView coverView = (ImageView) rootView.findViewById(R.id.cover_image_view);
-                byte[] cover = Util.getBytesFromDrawable(coverView.getDrawable());
+
+                Bitmap source = ((BitmapDrawable)coverView.getDrawable()).getBitmap();
+                Bitmap image = Bitmap.createScaledBitmap(source,WIDTH,HEIGHT,true);
+
+                byte[] cover = Util.getBytesFromBitmap(image);
 
                 if (author.equals("")) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.missing_author_warning), Toast.LENGTH_SHORT).show();

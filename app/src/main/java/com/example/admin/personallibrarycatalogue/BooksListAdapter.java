@@ -46,13 +46,7 @@ public class BooksListAdapter extends ArrayAdapter<Book> {
 
         viewHolder.authorTextView_.setText(getItem(position).getAuthor());
         viewHolder.titleTextView_.setText(getItem(position).getTitle());
-
-        if (Util.getBitmapFromBytes(getItem(position).getCover()) != null) {
-            viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(getItem(position).getCover()));
-        }
-
+        viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(getItem(position).getCover()));
         return convertView;
     }
-
-
 }

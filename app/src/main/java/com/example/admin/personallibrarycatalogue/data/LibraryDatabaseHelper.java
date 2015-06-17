@@ -47,7 +47,6 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.BooksTable.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 
@@ -73,17 +72,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
         Book book;
         if (cursor.moveToFirst()) {
-            book = new Book();
-            book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
-            book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
-
-            if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
-                book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
-            }
-
-            if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
-                book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
-            }
+            book = getBookFromCursor(cursor);
         } else {
             return null;
         }
@@ -118,17 +107,7 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                Book book = new Book();
-                book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
-                book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
-
-                if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
-                    book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
-                }
-
-                if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
-                    book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
-                }
+                Book book = getBookFromCursor(cursor);
                 bookList.add(book);
             } while (cursor.moveToNext());
         }
@@ -146,5 +125,16 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         values.put(BooksTable.DESCRIPTION, book.getDescription());
         values.put(BooksTable.COVER, book.getCover());
         return values;
+    }
+
+    private Book getBookFromCursor(Cursor cursor){
+        int id = cursor.getInt(cursor.getColumnIndex(BooksTable._ID));
+        String title = cursor.getString(cursor.getColumnIndex(BooksTable.TITLE));
+        String author = cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR));
+        String description = cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION));
+        byte[] cover = cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER));
+        Book book = new Book(id,title,author,description,cover);
+
+        return book;
     }
 }

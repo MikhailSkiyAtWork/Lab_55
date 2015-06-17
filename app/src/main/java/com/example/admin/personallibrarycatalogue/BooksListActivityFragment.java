@@ -51,7 +51,8 @@ public class BooksListActivityFragment extends Fragment {
         listView_.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                updateBook(parent, position);
+                Book selectedBook = (Book) listView_.getItemAtPosition(position);
+                updateBook(selectedBook);
             }
         });
 
@@ -70,13 +71,14 @@ public class BooksListActivityFragment extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
+        Book selectedBook = (Book) listView_.getItemAtPosition(info.position);
         switch (item.getItemId()) {
             case R.id.edit_book:
-                updateBook(listView_, info.position);
+                updateBook(selectedBook);
                 break;
 
             case R.id.delete_book:
-                deleteBook(listView_, info.position);
+                deleteBook(selectedBook);
                 booksListAdapter_.notifyDataSetChanged();
                 break;
 
@@ -88,21 +90,14 @@ public class BooksListActivityFragment extends Fragment {
 
     /**
      * Set up activity for changing some information about book (title, author etc.)
-     *
-     * @param parent   AdapterView (could be a ListView, GridView, Spinner)
-     * @param position Clicked item position
      */
-    public void updateBook(AdapterView<?> parent, int position) {
-        Book book = (Book) parent.getItemAtPosition(position);
-
+    public void updateBook(Book book) {
         Intent intent = new Intent(getActivity(), AddBookActivity.class);
         intent.putExtra(EXTRA_ID, book.getId());
         startActivity(intent);
     }
 
-    public void deleteBook(AdapterView<?> parent, int position) {
-        Book book = (Book) parent.getItemAtPosition(position);
-
+    public void deleteBook(Book book) {
         // Delete from database
         helper_.deleteBook(book.getId());
         // Delete from adapter

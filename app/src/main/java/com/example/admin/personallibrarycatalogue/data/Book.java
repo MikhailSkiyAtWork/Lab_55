@@ -34,14 +34,16 @@ public class Book {
         this.author_ = author;
     }
 
-    public Book() {
-    }
     //endregion
 
     //region Accessor Methods
     @Nullable
     public Integer getId() {
         return id_;
+    }
+
+    public void setId(int id){
+        this.id_ = id;
     }
 
     public String getTitle() {
