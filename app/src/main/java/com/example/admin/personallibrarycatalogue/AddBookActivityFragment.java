@@ -137,6 +137,7 @@ public class AddBookActivityFragment extends Fragment {
                 }
 
                 Intent intent = new Intent(getActivity(), BooksListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 getActivity().finish();
 
@@ -165,7 +166,9 @@ public class AddBookActivityFragment extends Fragment {
                         final Uri imageUri = imageReturnedIntent.getData();
                         final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
                         final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+
                         imageView_.setImageBitmap(selectedImage);
+                        //selectedImage.recycle();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }

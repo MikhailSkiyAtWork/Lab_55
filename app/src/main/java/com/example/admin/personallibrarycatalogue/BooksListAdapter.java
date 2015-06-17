@@ -49,4 +49,10 @@ public class BooksListAdapter extends ArrayAdapter<Book> {
         viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(getItem(position).getCover()));
         return convertView;
     }
+
+    public void setNewItems(List<Book> newBooks){
+        clear();
+        addAll(newBooks);
+        notifyDataSetChanged();
+    }
 }

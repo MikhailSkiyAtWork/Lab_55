@@ -60,6 +60,12 @@ public class BooksListActivityFragment extends Fragment {
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        booksListAdapter_.setNewItems(helper_.getAllBooks());
+    }
+
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
@@ -94,6 +100,7 @@ public class BooksListActivityFragment extends Fragment {
     public void updateBook(Book book) {
         Intent intent = new Intent(getActivity(), AddBookActivity.class);
         intent.putExtra(EXTRA_ID, book.getId());
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
 
@@ -103,4 +110,5 @@ public class BooksListActivityFragment extends Fragment {
         // Delete from adapter
         booksListAdapter_.remove(book);
     }
+
 }

@@ -21,7 +21,8 @@
         </activity>
         <activity
             android:name=".BooksListActivity"
-            android:label="@string/title_activity_books_list" >
+            android:label="@string/title_activity_books_list"
+            android:launchMode="singleTask" >
         </activity>
         <activity
             android:name=".AddBookActivity"
