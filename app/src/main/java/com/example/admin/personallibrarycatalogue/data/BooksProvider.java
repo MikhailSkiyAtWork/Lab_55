@@ -162,6 +162,4 @@ public class BooksProvider extends ContentProvider {
         }
         return rowsUpdated;
     }
-
-
 }

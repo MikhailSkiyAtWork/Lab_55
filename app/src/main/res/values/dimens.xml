@@ -18,6 +18,6 @@
     <!-- Values for buttons -->
     <dimen name="width">0dp</dimen>
     <dimen name="height">0dp</dimen>
-    <dimen name="weight">1</dimen>
+
 
 </resources>

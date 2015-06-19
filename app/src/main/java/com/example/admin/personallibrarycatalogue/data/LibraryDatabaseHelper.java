@@ -65,36 +65,21 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         return bookList;
     }
 
+    // TODO check getPosition, because sometimes it returns -1, so I have to do MoveFirst
     public static Book getBook(Cursor cursor) {
-        Book book = new Book();
-
         int position = cursor.getPosition();
         if (position > 0) {
-            book = setBookValues(cursor);
-
+            Book book = setBookValues(cursor);
+            return book;
         } else if (cursor.moveToFirst()) {
-            book = setBookValues(cursor);
-        }
+            Book book = setBookValues(cursor);
             return book;
         }
+        return null;
+    }
 
-    public static Book setBookValues (Cursor cursor){
-        Book book = new Book();
-        book.setId(cursor.getInt(cursor.getColumnIndex(BooksTable._ID)));
-        book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
-        book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
-
-        if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
-            book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
-        }
-
-        if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
-            book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
-        }
-
-        book.setYear(cursor.getInt(cursor.getColumnIndex(BooksTable.YEAR)));
-        book.setIsbn(cursor.getString(cursor.getColumnIndex(BooksTable.ISBN)));
-
+    public static Book setBookValues(Cursor cursor) {
+        Book book = getBookFromCursor(cursor);
         return book;
     }
 
@@ -109,4 +94,16 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         return booksValues;
     }
 
+    public static Book getBookFromCursor(Cursor cursor) {
+        int id = cursor.getInt(cursor.getColumnIndex(DatabaseContract.BooksTable._ID));
+        String title = cursor.getString(cursor.getColumnIndex(BooksTable.TITLE));
+        String author = cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR));
+        String description = cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION));
+        int year = cursor.getInt(cursor.getColumnIndex(BooksTable.YEAR));
+        String isbn = cursor.getString(cursor.getColumnIndex(BooksTable.ISBN));
+        byte[] cover = cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER));
+
+        Book book = new Book(id, title, author, description, cover, year, isbn);
+        return book;
+    }
 }

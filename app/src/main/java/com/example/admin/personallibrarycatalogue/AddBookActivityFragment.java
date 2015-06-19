@@ -1,11 +1,11 @@
 package com.example.admin.personallibrarycatalogue;
 
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.UriMatcher;
-import android.database.Cursor;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -35,8 +35,9 @@ import java.io.InputStream;
 public class AddBookActivityFragment extends Fragment {
 
     public final int SELECT_PHOTO = 1;
-    public final int WIDTH  = 72;
+    public final int WIDTH = 72;
     public final int HEIGHT = 60;
+    private static final String bookSelectionQuery = DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID + " = ?";
 
 
     @Nullable
@@ -71,8 +72,7 @@ public class AddBookActivityFragment extends Fragment {
 
         if (extras != null) {
             id_ = getArguments().getInt("id");
-            Book book = helper.getBookById(id_);
-            fillAllFields(rootView, book);
+            fillAllFields(rootView, id_);
         }
 
         imageView_ = (ImageView) rootView.findViewById(R.id.cover_image_view);
@@ -117,8 +117,12 @@ public class AddBookActivityFragment extends Fragment {
 
                 int year = 0;
 
-                if (yearEditText.getText().toString().length()>0) {
-                     year = Integer.parseInt(yearEditText.getText().toString());
+                if (yearEditText.getText().toString().length() > 0) {
+                    try {
+                        year = Integer.parseInt(yearEditText.getText().toString());
+                    } catch (NumberFormatException e){
+                        Toast.makeText(getActivity(),"Input is not an integer!", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 EditText isbnEditText = (EditText) rootView.findViewById(R.id.isbn_edit_text);
@@ -126,8 +130,8 @@ public class AddBookActivityFragment extends Fragment {
 
                 ImageView coverView = (ImageView) rootView.findViewById(R.id.cover_image_view);
 
-                Bitmap source = ((BitmapDrawable)coverView.getDrawable()).getBitmap();
-                Bitmap image = Bitmap.createScaledBitmap(source,WIDTH,HEIGHT,true);
+                Bitmap source = ((BitmapDrawable) coverView.getDrawable()).getBitmap();
+                Bitmap image = Bitmap.createScaledBitmap(source, WIDTH, HEIGHT, true);
 
                 byte[] cover = Util.getBytesFromBitmap(image);
 
@@ -164,9 +168,9 @@ public class AddBookActivityFragment extends Fragment {
             }
         });
 
-        // Actions for cancel button (clear fields and leave activity)
+        // Actions for cancel button (just leave activity)
         Button cancelButton = (Button) rootView.findViewById(R.id.cancel);
-       cancelButton.setOnClickListener(new View.OnClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().finish();
@@ -175,7 +179,8 @@ public class AddBookActivityFragment extends Fragment {
 
         return rootView;
     }
-   @Override
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
         switch (requestCode) {
@@ -185,7 +190,6 @@ public class AddBookActivityFragment extends Fragment {
                         final Uri imageUri = imageReturnedIntent.getData();
                         final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
                         final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-
                         imageView_.setImageBitmap(selectedImage);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -196,10 +200,9 @@ public class AddBookActivityFragment extends Fragment {
 
     private void fillAllFields(View view, int id) {
 
-
         Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id);
         Cursor cursor = getActivity().getContentResolver().query(bookWithIdUri,
-                null,
+                DatabaseContract.BOOK_COLUMNS,
                 bookSelectionQuery,
                 new String[]{id_.toString()},
                 null);
@@ -215,13 +218,13 @@ public class AddBookActivityFragment extends Fragment {
         EditText descriptionEditText = (EditText) view.findViewById(R.id.description_edit_text);
         descriptionEditText.setText(book.getDescription());
 
-        EditText yearEditText = (EditText)view.findViewById(R.id.year_edit_text);
+        EditText yearEditText = (EditText) view.findViewById(R.id.year_edit_text);
         yearEditText.setText(Integer.toString(book.getYear()));
 
-        EditText isbnEditText = (EditText)view.findViewById(R.id.isbn_edit_text);
+        EditText isbnEditText = (EditText) view.findViewById(R.id.isbn_edit_text);
         isbnEditText.setText(book.getIsbn());
 
         ImageView coverView = (ImageView) view.findViewById(R.id.cover_image_view);
         coverView.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
-
     }
+}

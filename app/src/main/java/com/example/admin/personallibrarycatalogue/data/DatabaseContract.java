@@ -8,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.provider.ContactsContract;
 
 /**
  * Describes fields of database for Personal Library Application
@@ -44,4 +45,14 @@ public class DatabaseContract {
         return Integer.parseInt(uri.getPathSegments().get(1));
     }
 
+    public static final String[] BOOK_COLUMNS = {
+
+            DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID,
+            DatabaseContract.BooksTable.TITLE,
+            DatabaseContract.BooksTable.AUTHOR,
+            DatabaseContract.BooksTable.DESCRIPTION,
+            DatabaseContract.BooksTable.COVER,
+            DatabaseContract.BooksTable.YEAR,
+            DatabaseContract.BooksTable.ISBN,
+    };
 }
