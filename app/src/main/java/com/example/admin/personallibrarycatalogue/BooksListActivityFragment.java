@@ -32,12 +32,12 @@ import java.util.Objects;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * The fragment which responsible for showing list of all books
  */
 public class BooksListActivityFragment extends Fragment implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int LIBRARY_LOADER = 0;
-    private final static String ID = "id";
+    private final static String EXTRA_ID = "id";
     private ListView listView_;
     private BooksListAdapter booksListAdapter_;
     private LibraryDatabaseHelper helper_;
@@ -83,9 +83,13 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_books_list, container, false);
 
+        helper_ = new LibraryDatabaseHelper(getActivity());
+
+        List<Book> booksList = new ArrayList<Book>();
+        booksList = helper_.getAllBooks();
 
         listView_ = (ListView) rootView.findViewById(R.id.books_list_view);
-        booksListAdapter_ = new BooksListAdapter(getActivity(), null, 0);
+        booksListAdapter_ = new BooksListAdapter(this.getActivity(), booksList);
         listView_.setAdapter(booksListAdapter_);
 
         // Set ContextMenu for listView
@@ -121,6 +125,7 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         Cursor cursor = (Cursor) listView_.getItemAtPosition(info.position);
 
+        Book selectedBook = (Book) listView_.getItemAtPosition(info.position);
         switch (item.getItemId()) {
             case R.id.edit_book:
                 changeBook(cursor);
@@ -146,7 +151,8 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
 
         Intent intent = new Intent();
         intent.setClass(getActivity(), AddBookActivity.class);
-        intent.putExtra(ID, id);
+        intent.putExtra(EXTRA_ID, book.getId());
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
 
@@ -158,4 +164,5 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
         // Delete from database with help of Content Provider
         getActivity().getContentResolver().delete(bookWithIdUri, null, null);
     }
+
 }

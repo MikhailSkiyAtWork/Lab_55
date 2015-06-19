@@ -28,4 +28,12 @@
     <string name="edit_book_action">Edit</string>
     <string name="delete_book_action">Delete</string>
 
+    <!-- values for SharedPreferences-->
+    <string name="title_settings">Title</string>
+    <string name="author_settings">Author</string>
+
+    <!-- values for warnings-->
+    <string name="missing_title_warning">Please enter the title field</string>
+    <string name="missing_author_warning">Please enter the author field</string>
+
 </resources>

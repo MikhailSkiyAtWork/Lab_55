@@ -1,5 +1,6 @@
 package com.example.admin.personallibrarycatalogue;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,6 +22,12 @@ public class AddBookActivity extends ActionBarActivity {
         }
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // The activity has become visible (it is now "resumed").
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

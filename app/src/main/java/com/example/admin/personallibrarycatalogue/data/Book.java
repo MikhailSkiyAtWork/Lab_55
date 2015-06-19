@@ -10,7 +10,8 @@ import android.support.annotation.Nullable;
 public class Book {
 
     //region Private fields
-    @Nullable private Integer id_ = null;
+    @Nullable
+    private Integer id_ = null;
     private String title_;
     private String author_;
     private String description_;
@@ -30,7 +31,6 @@ public class Book {
         this.isbn_ = isbn;
     }
 
-    public Book(){}
     //endregion
 
     //region Accessor Methods
@@ -39,37 +39,35 @@ public class Book {
         return id_;
     }
 
-    public void setId(int id){this.id_ = id;}
-
     public String getTitle(){
         return title_;
     }
 
-    public void setTitle(String title){
+    public void setTitle(String title) {
         this.title_ = title;
     }
 
-    public String getAuthor(){
+    public String getAuthor() {
         return author_;
     }
 
-    public void setAuthor(String author){
+    public void setAuthor(String author) {
         this.author_ = author;
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return description_;
     }
 
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description_ = description;
     }
 
-    public byte[] getCover(){
+    public byte[] getCover() {
         return this.cover_;
     }
 
-    public void setCover(byte[] cover){
+    public void setCover(byte[] cover) {
         this.cover_ = cover;
     }
 

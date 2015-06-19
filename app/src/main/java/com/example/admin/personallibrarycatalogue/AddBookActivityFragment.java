@@ -4,9 +4,13 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,26 +30,29 @@ import java.io.InputStream;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * The fragment is using for adding and editinig book
  */
 public class AddBookActivityFragment extends Fragment {
 
-    private final static String TITLE = "Title";
-    private final static String AUTHOR = "Author";
-    private final static String PLEASE_ENTER_THE_AUTHOR_FIELD = "Please enter the author field";
-    private final static String PLEASE_ENTER_THE_TITLE_FIELD = "Please enter the title field";
-    private static final String bookSelectionQuery = DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID + " = ?";
-    private ImageView imageView_;
-    private final int SELECT_PHOTO = 1;
+    public final int SELECT_PHOTO = 1;
+    public final int WIDTH  = 72;
+    public final int HEIGHT = 60;
+
+
+    @Nullable
     private Integer id_;
+    private ImageView imageView_;
 
     public AddBookActivityFragment newInstance(String title, String author) {
         AddBookActivityFragment fragment = new AddBookActivityFragment();
 
         // arguments
         Bundle arguments = new Bundle();
-        arguments.putString(TITLE, title);
-        arguments.putString(AUTHOR, author);
+
+        // Using values from string.xml resources
+        Resources resources = getResources();
+        arguments.putString(String.format(resources.getString(R.string.title_settings)), title);
+        arguments.putString(String.format(resources.getString(R.string.author_settings)), author);
         fragment.setArguments(arguments);
         return fragment;
     }
@@ -57,13 +64,15 @@ public class AddBookActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
         final View rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
+        final LibraryDatabaseHelper helper = new LibraryDatabaseHelper(getActivity());
+
         Bundle extras = getActivity().getIntent().getExtras();
 
         if (extras != null) {
             id_ = getArguments().getInt("id");
-            fillAllFields(rootView, id_);
+            Book book = helper.getBookById(id_);
+            fillAllFields(rootView, book);
         }
 
         imageView_ = (ImageView) rootView.findViewById(R.id.cover_image_view);
@@ -75,15 +84,23 @@ public class AddBookActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+
+                ComponentName activity = photoPickerIntent.resolveActivity(getActivity().getPackageManager());
                 photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+
+                if (activity != null) {
+                    startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+                } else {
+                    Toast.makeText(getActivity().getBaseContext(), "There are no activities for such intent",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         // Actions for ok - button (Checking fields, insert into database, start new activity)
-        Button okButton = (Button) rootView.findViewById(R.id.apply_button);
+        Button applyButton = (Button) rootView.findViewById(R.id.apply_button);
 
-        okButton.setOnClickListener(new View.OnClickListener() {
+        applyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -108,15 +125,19 @@ public class AddBookActivityFragment extends Fragment {
                 String isbn = isbnEditText.getText().toString();
 
                 ImageView coverView = (ImageView) rootView.findViewById(R.id.cover_image_view);
-                byte[] cover = Util.getBytesFromDrawable(coverView.getDrawable());
 
-                if (author.matches("")) {
-                    Toast.makeText(getActivity(), PLEASE_ENTER_THE_AUTHOR_FIELD, Toast.LENGTH_SHORT).show();
+                Bitmap source = ((BitmapDrawable)coverView.getDrawable()).getBitmap();
+                Bitmap image = Bitmap.createScaledBitmap(source,WIDTH,HEIGHT,true);
+
+                byte[] cover = Util.getBytesFromBitmap(image);
+
+                if (author.equals("")) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.missing_author_warning), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (title.matches("")) {
-                    Toast.makeText(getActivity(), PLEASE_ENTER_THE_TITLE_FIELD, Toast.LENGTH_SHORT).show();
+                if (title.equals("")) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.missing_title_warning), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -137,7 +158,9 @@ public class AddBookActivityFragment extends Fragment {
                 }
 
                 Intent intent = new Intent(getActivity(), BooksListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
+
             }
         });
 
@@ -146,26 +169,28 @@ public class AddBookActivityFragment extends Fragment {
        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ViewGroup group = (ViewGroup) rootView.findViewById(R.id.add_book_layout);
-                clearForm(group);
-
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                startActivity(intent);
+                getActivity().finish();
             }
         });
 
         return rootView;
     }
+   @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+        switch (requestCode) {
+            case SELECT_PHOTO:
+                if (resultCode == getActivity().RESULT_OK) {
+                    try {
+                        final Uri imageUri = imageReturnedIntent.getData();
+                        final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
+                        final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
 
-    /**
-     * Clears all edtiText fileds
-     */
-    private void clearForm(ViewGroup group) {
-        for (int i = 0, count = group.getChildCount(); i < count; i++) {
-            View view = group.getChildAt(i);
-            if (view instanceof EditText) {
-                ((EditText) view).setText("");
-            }
+                        imageView_.setImageBitmap(selectedImage);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
         }
     }
 
@@ -200,22 +225,3 @@ public class AddBookActivityFragment extends Fragment {
         coverView.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
 
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        switch (requestCode) {
-            case SELECT_PHOTO:
-                if (resultCode == getActivity().RESULT_OK) {
-                    try {
-                        final Uri imageUri = imageReturnedIntent.getData();
-                        final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
-                        final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                        imageView_.setImageBitmap(selectedImage);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-        }
-    }
-}
