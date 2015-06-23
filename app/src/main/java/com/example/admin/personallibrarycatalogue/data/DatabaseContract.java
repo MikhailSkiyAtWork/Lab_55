@@ -46,7 +46,6 @@ public class DatabaseContract {
     }
 
     public static final String[] BOOK_COLUMNS = {
-
             DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID,
             DatabaseContract.BooksTable.TITLE,
             DatabaseContract.BooksTable.AUTHOR,

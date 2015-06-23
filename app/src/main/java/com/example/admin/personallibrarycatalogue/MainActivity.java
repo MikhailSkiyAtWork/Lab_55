@@ -32,8 +32,6 @@ public class MainActivity extends ActionBarActivity {
         LibraryDatabaseHelper helper_ = new LibraryDatabaseHelper(this);
         List<Book> booksList = new ArrayList<Book>();
 
-
-
         Cursor cursor = this.getContentResolver().query(DatabaseContract.BooksTable.CONTENT_URI,
                 DatabaseContract.BOOK_COLUMNS,
                 null,
@@ -66,12 +64,12 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.add_book_action:
-                Intent intent = new Intent(this,AddBookActivity.class);
+                Intent intent = new Intent(this, AddBookActivity.class);
                 startActivity(intent);
-             default:
-                 return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

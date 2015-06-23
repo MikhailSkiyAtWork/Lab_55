@@ -3,7 +3,6 @@ package com.example.admin.personallibrarycatalogue;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.UriMatcher;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -37,12 +36,11 @@ public class AddBookActivityFragment extends Fragment {
     public final int SELECT_PHOTO = 1;
     public final int WIDTH = 72;
     public final int HEIGHT = 60;
-    private static final String bookSelectionQuery = DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID + " = ?";
 
-
+    private static final String bookSelectionQuery_ = DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID + " = ?";
+    private ImageView imageView_;
     @Nullable
     private Integer id_;
-    private ImageView imageView_;
 
     public AddBookActivityFragment newInstance(String title, String author) {
         AddBookActivityFragment fragment = new AddBookActivityFragment();
@@ -120,8 +118,8 @@ public class AddBookActivityFragment extends Fragment {
                 if (yearEditText.getText().toString().length() > 0) {
                     try {
                         year = Integer.parseInt(yearEditText.getText().toString());
-                    } catch (NumberFormatException e){
-                        Toast.makeText(getActivity(),"Input is not an integer!", Toast.LENGTH_SHORT).show();
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getActivity(), "Input is not an integer!", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -164,6 +162,7 @@ public class AddBookActivityFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), BooksListActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
+                getActivity().finish();
 
             }
         });
@@ -203,7 +202,7 @@ public class AddBookActivityFragment extends Fragment {
         Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id);
         Cursor cursor = getActivity().getContentResolver().query(bookWithIdUri,
                 DatabaseContract.BOOK_COLUMNS,
-                bookSelectionQuery,
+                bookSelectionQuery_,
                 new String[]{id_.toString()},
                 null);
 

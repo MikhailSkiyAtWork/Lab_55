@@ -28,6 +28,7 @@ public class FirstLaunchFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddBookActivity.class);
                 startActivity(intent);
+                getActivity().finish();
             }
         });
 

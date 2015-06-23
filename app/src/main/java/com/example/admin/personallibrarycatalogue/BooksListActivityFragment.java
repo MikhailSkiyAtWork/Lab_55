@@ -33,8 +33,6 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
     private BooksListAdapter booksListAdapter_;
     private LibraryDatabaseHelper helper_;
 
-
-
     public BooksListActivityFragment() {
     }
 
