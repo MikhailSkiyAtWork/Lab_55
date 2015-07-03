@@ -22,11 +22,9 @@ public class AddBookActivity extends ActionBarActivity {
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
-        // The activity has become visible (it is now "resumed").
     }
 
     @Override

@@ -17,9 +17,9 @@ import java.io.ByteArrayOutputStream;
 /**
  * Created by Mikhail Valuyskiy on 26.05.2015.
  */
-public class TestDb extends AndroidTestCase {
+public class DatabaseTest extends AndroidTestCase {
 
-    public static final String LOG_TAG = TestDb.class.getSimpleName();
+    public static final String LOG_TAG = DatabaseTest.class.getSimpleName();
 
     private static final String BOOK_TITLE = "Thinking in Java";
     private static final String BOOK_AUTHOR = "Bruce Eckel";
