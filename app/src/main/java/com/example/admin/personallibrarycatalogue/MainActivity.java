@@ -27,11 +27,9 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         LibraryDatabaseHelper helper_ = new LibraryDatabaseHelper(this);
-        List<Book> booksList = new ArrayList<Book>();
-        booksList = helper_.getAllBooks();
 
         // If app was launched first time or there are no books, show user sugestion to add book
-        if (!(booksList.size() > 0)) {
+        if (!(Util.isDatabaseContainsItems(helper_))) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment, new FirstLaunchFragment())
                     .commit();

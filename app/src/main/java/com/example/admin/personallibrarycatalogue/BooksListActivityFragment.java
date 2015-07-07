@@ -85,6 +85,14 @@ public class BooksListActivityFragment extends Fragment {
 
             case R.id.delete_book:
                 deleteBook(selectedBook);
+
+                // If database has no items
+                if (!(Util.isDatabaseContainsItems(helper_))) {
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    startActivity(intent);
+                    getActivity().finish();
+                }
+
                 booksListAdapter_.notifyDataSetChanged();
                 break;
 
@@ -110,5 +118,6 @@ public class BooksListActivityFragment extends Fragment {
         // Delete from adapter
         booksListAdapter_.remove(book);
     }
+
 
 }

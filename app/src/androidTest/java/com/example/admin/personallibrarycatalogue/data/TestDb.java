@@ -13,6 +13,7 @@ import com.example.admin.personallibrarycatalogue.data.DatabaseContract.BooksTab
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * Created by Mikhail Valuyskiy on 26.05.2015.
@@ -38,8 +39,8 @@ public class TestDb extends AndroidTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        mContext.deleteDatabase(LibraryDatabaseHelper.DATABASE_NAME);
         helper_.close();
+        helper_.deleteDatabase(mContext);
     }
 
     public void testCreateDb() throws Throwable {
@@ -57,24 +58,29 @@ public class TestDb extends AndroidTestCase {
         assertTrue(bookId != -1);
         Log.d(LOG_TAG, "New row id: " + bookId);
 
-        Cursor cursor = database_.query(
-                BooksTable.TABLE_NAME, // Table to Query
-                null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                null, // columns to group by
-                null, // columns to filter by row groups
-                null // sort order
-        );
+        Cursor cursor = null;
 
-        if (!cursor.moveToFirst()) {
-            fail("Now data returned");
+        try {
+            cursor = database_.query(
+                    BooksTable.TABLE_NAME, // Table to Query
+                    null, // leaving "columns" null just returns all the columns.
+                    null, // cols for "where" clause
+                    null, // values for "where" clause
+                    null, // columns to group by
+                    null, // columns to filter by row groups
+                    null // sort order
+            );
+
+            if (!cursor.moveToFirst()) {
+                fail("Now data returned");
+            }
+            assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)), BOOK_TITLE);
+            assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)), BOOK_AUTHOR);
+            assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)), BOOK_DESCRIPTION);
+
+        } finally {
+            cursor.close();
         }
-        assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)), BOOK_TITLE);
-        assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)), BOOK_AUTHOR);
-        assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)), BOOK_DESCRIPTION);
-
-        cursor.close();
     }
 
     private ContentValues createBooksValues() {

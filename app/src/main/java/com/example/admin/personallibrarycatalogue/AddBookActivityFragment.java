@@ -2,7 +2,6 @@ package com.example.admin.personallibrarycatalogue;
 
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -88,7 +87,7 @@ public class AddBookActivityFragment extends Fragment {
                 if (activity != null) {
                     startActivityForResult(photoPickerIntent, SELECT_PHOTO);
                 } else {
-                    Toast.makeText(getActivity().getBaseContext(), "There are no activities for such intent",
+                    Toast.makeText(getActivity().getBaseContext(), getResources().getString(R.string.no_apropriate_apps_msg),
                             Toast.LENGTH_SHORT).show();
                 }
             }
