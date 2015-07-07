@@ -38,17 +38,18 @@ public class Util {
         return imageInByte;
     }
 
-    static public byte[] getBytesFromDrawable(Drawable image){
-        Bitmap bitmap = ((BitmapDrawable)image).getBitmap();
+    static public byte[] getBytesFromDrawable(Drawable image) {
+        Bitmap bitmap = ((BitmapDrawable) image).getBitmap();
         byte imageInByte[] = getBytesFromBitmap(bitmap);
-        return  imageInByte;
+        return imageInByte;
     }
 
     /**
      * Cheks that the database is empty or not
+     *
      * @return True in case the database contain smth, otherwise false
      */
-    static public boolean isDatabaseContainsItems(LibraryDatabaseHelper helper){
+    static public boolean isDatabaseContainsItems(LibraryDatabaseHelper helper) {
         List<Book> booksList = new ArrayList<Book>();
         booksList = helper.getAllBooks();
 
@@ -58,6 +59,4 @@ public class Util {
             return false;
         }
     }
-
-
 }
