@@ -87,7 +87,7 @@ public class BooksListActivityFragment extends Fragment {
                 deleteBook(selectedBook);
 
                 // If database has no items
-                if (!(Util.isDatabaseContainsItems(helper_))) {
+                if (!(helper_.isDatabaseContainsItems())) {
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     startActivity(intent);
                     getActivity().finish();

@@ -65,6 +65,22 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Cheks that the database is empty or not
+     *
+     * @return True in case the database contain smth, otherwise false
+     */
+    public boolean isDatabaseContainsItems() {
+        List<Book> booksList = new ArrayList<Book>();
+        booksList = getAllBooks();
+
+        if (booksList.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Returns Book or null if there is no such book
      */
     public Book getBookById(int id) {

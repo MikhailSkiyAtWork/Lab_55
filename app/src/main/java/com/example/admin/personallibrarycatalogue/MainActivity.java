@@ -29,7 +29,7 @@ public class MainActivity extends ActionBarActivity {
         LibraryDatabaseHelper helper_ = new LibraryDatabaseHelper(this);
 
         // If app was launched first time or there are no books, show user sugestion to add book
-        if (!(Util.isDatabaseContainsItems(helper_))) {
+        if (!(helper_.isDatabaseContainsItems())) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment, new FirstLaunchFragment())
                     .commit();

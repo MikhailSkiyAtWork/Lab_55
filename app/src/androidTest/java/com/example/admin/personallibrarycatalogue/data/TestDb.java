@@ -58,10 +58,7 @@ public class TestDb extends AndroidTestCase {
         assertTrue(bookId != -1);
         Log.d(LOG_TAG, "New row id: " + bookId);
 
-        Cursor cursor = null;
-
-        try {
-            cursor = database_.query(
+        Cursor cursor  = database_.query(
                     BooksTable.TABLE_NAME, // Table to Query
                     null, // leaving "columns" null just returns all the columns.
                     null, // cols for "where" clause
@@ -74,10 +71,10 @@ public class TestDb extends AndroidTestCase {
             if (!cursor.moveToFirst()) {
                 fail("Now data returned");
             }
+        try {
             assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)), BOOK_TITLE);
             assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)), BOOK_AUTHOR);
             assertEquals(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)), BOOK_DESCRIPTION);
-
         } finally {
             cursor.close();
         }
