@@ -136,4 +136,5 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
         // Delete from database with help of Content Provider
         getActivity().getContentResolver().delete(bookWithIdUri, null, null);
     }
+
 }

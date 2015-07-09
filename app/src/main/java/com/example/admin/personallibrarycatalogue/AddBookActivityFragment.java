@@ -89,7 +89,7 @@ public class AddBookActivityFragment extends Fragment {
                 if (activity != null) {
                     startActivityForResult(photoPickerIntent, SELECT_PHOTO);
                 } else {
-                    Toast.makeText(getActivity().getBaseContext(), "There are no activities for such intent",
+                    Toast.makeText(getActivity().getBaseContext(), getResources().getString(R.string.no_apropriate_apps_msg),
                             Toast.LENGTH_SHORT).show();
                 }
             }
