@@ -44,7 +44,7 @@ public class BooksProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder){
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor returnedCursor;
 
         switch (uriMatcher_.match(uri)) {
@@ -66,9 +66,9 @@ public class BooksProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        returnedCursor.setNotificationUri(getContext().getContentResolver(),uri);
+        returnedCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return returnedCursor;
-        }
+    }
 
     @Override
     public Uri insert(Uri uri, ContentValues values){
@@ -93,19 +93,19 @@ public class BooksProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs){
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = helper_.getWritableDatabase();
         final int match = uriMatcher_.match(uri);
         int rowDeleted;
 
-        switch (match){
+        switch (match) {
             case BOOK_WITH_ID:
                 String id = uri.getLastPathSegment();
                 selection = DatabaseContract.BooksTable._ID + " = " + id;
-                rowDeleted = db.delete(DatabaseContract.BooksTable.TABLE_NAME,selection,selectionArgs);
+                rowDeleted = db.delete(DatabaseContract.BooksTable.TABLE_NAME, selection, selectionArgs);
                 break;
-              default:
-                  throw new UnsupportedOperationException("Unknown uri: " + uri);
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return rowDeleted;
@@ -128,6 +128,7 @@ public class BooksProvider extends ContentProvider {
         if (rowsUpdated != 0){
             getContext().getContentResolver().notifyChange(uri,null);
         }
+
         return rowsUpdated;
     }
 
@@ -136,6 +137,7 @@ public class BooksProvider extends ContentProvider {
         final String authority = DatabaseContract.CONTENT_AUTHORITY;
         matcher.addURI(authority, DatabaseContract.PATH_BOOKS, BOOKS);
         matcher.addURI(authority, DatabaseContract.PATH_BOOKS + "/#", BOOK_WITH_ID);
+
         return matcher;
     }
 

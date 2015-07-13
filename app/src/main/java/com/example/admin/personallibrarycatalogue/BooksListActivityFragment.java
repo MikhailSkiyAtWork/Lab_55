@@ -104,7 +104,6 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
         Cursor cursor = (Cursor) listView_.getItemAtPosition(info.position);
         Book book = LibraryDatabaseHelper.getBook(cursor);
 
-        // Book selectedBook = (Book) listView_.getItemAtPosition(info.position);
         switch (item.getItemId()) {
             case R.id.edit_book:
                 updateBook(book);

@@ -65,7 +65,6 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         return bookList;
     }
 
-    // TODO check getPosition, because sometimes it returns -1, so I have to do MoveFirst
     public static Book getBook(Cursor cursor) {
         int position = cursor.getPosition();
         if (position > 0) {
