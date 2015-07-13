@@ -22,7 +22,7 @@ import java.util.List;
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     // When the database schema was changed, you must increment the database version
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
     static final String DATABASE_NAME = "library.db";
 
     public LibraryDatabaseHelper(Context context) {
@@ -50,7 +50,11 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        onCreate(sqLiteDatabase);
+        //onCreate(sqLiteDatabase);
+        if (oldVersion<DATABASE_VERSION){
+            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " + BooksTable.YEAR + " INTEGER " );
+            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " +  BooksTable.ISBN + " TEXT ");
+        }
     }
 
     public static List<Book> getBooksList(Cursor cursor) {
