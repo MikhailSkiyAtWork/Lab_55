@@ -39,8 +39,8 @@ public class DatabaseTest extends AndroidTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        database_.delete(DatabaseContract.BooksTable.TABLE_NAME, "1", null);
         helper_.close();
-        helper_.deleteDatabase(mContext);
     }
 
     public void testCreateDb() throws Throwable {
