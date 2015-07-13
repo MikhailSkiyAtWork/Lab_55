@@ -58,5 +58,6 @@ public class BooksListAdapter extends CursorAdapter {
 
         byte[] cover = cursor.getBlob(cursor.getColumnIndex(DatabaseContract.BooksTable.COVER));
         viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(cover));
+
     }
 }

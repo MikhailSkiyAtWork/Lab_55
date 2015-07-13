@@ -128,9 +128,13 @@ public class AddBookActivityFragment extends Fragment {
                 String isbn = isbnEditText_.getText().toString();
 
                 Bitmap source = ((BitmapDrawable) coverView_.getDrawable()).getBitmap();
-                Bitmap image = Bitmap.createScaledBitmap(source, WIDTH, HEIGHT, true);
+                byte[] cover = null;
+                if (source!=null) {
+                    Bitmap image = Bitmap.createScaledBitmap(source, WIDTH, HEIGHT, true);
+                    cover = Util.getBytesFromBitmap(image);
+                }
 
-                byte[] cover = Util.getBytesFromBitmap(image);
+
 
                 if (author.equals("")) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.missing_author_warning), Toast.LENGTH_SHORT).show();

@@ -26,8 +26,11 @@ public class Util {
      * Converts byte[] to Bitmap
      */
     public static Bitmap getBitmapFromBytes(byte[] image) {
-        ByteArrayInputStream imageStream = new ByteArrayInputStream(image);
-        Bitmap decodedImage = BitmapFactory.decodeStream(imageStream);
+        Bitmap decodedImage = null;
+        if (image != null) {
+            ByteArrayInputStream imageStream = new ByteArrayInputStream(image);
+            decodedImage = BitmapFactory.decodeStream(imageStream);
+        }
         return decodedImage;
     }
 

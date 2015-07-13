@@ -9,11 +9,13 @@ import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.example.admin.personallibrarycatalogue.R;
+import com.example.admin.personallibrarycatalogue.Util;
 import com.example.admin.personallibrarycatalogue.data.DatabaseContract.BooksTable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Created by Mikhail Valuyskiy on 26.05.2015.
@@ -85,8 +87,7 @@ public class DatabaseTest extends AndroidTestCase {
         booksValues.put(BooksTable.TITLE, BOOK_TITLE);
         booksValues.put(BooksTable.AUTHOR, BOOK_AUTHOR);
         booksValues.put(BooksTable.DESCRIPTION, BOOK_DESCRIPTION);
-        Bitmap image = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.ic_launcher);
-        booksValues.put(BooksTable.COVER, getBytesFromBitmap(image));
+        booksValues.put(BooksTable.COVER, Util.getBytesFromDrawable(mContext.getDrawable(R.mipmap.cover)));
         return booksValues;
     }
 
