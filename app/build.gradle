@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:support-v4:22.1.1'
     compile 'com.google.android.gms:play-services:7.3.0'
+    compile(group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.3')
 }
