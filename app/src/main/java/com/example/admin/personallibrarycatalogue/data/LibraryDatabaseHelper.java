@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 
 import com.example.admin.personallibrarycatalogue.data.DatabaseContract.BooksTable;
 
@@ -21,7 +22,7 @@ import java.util.List;
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     // When the database schema was changed, you must increment the database version
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
     static final String DATABASE_NAME = "library.db";
 
     public LibraryDatabaseHelper(Context context) {
@@ -39,7 +40,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
                 BooksTable.AUTHOR + " TEXT NOT NULL, " +
                 BooksTable.TITLE + " TEXT NOT NULL, " +
                 BooksTable.DESCRIPTION + " TEXT, " +
-                BooksTable.COVER + " BLOB );";
+                BooksTable.COVER + " BLOB," +
+                BooksTable.YEAR + " INTEGER, " +
+                BooksTable.ISBN + " TEXT );";
 
         sqLiteDatabase.execSQL(SQL_CREATE_BOOKS_TABLE);
     }
@@ -47,114 +50,63 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        onCreate(sqLiteDatabase);
-    }
-
-    public boolean deleteBook(int id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        int rowsDeleted = db.delete(BooksTable.TABLE_NAME, BooksTable._ID + " = " + id, null);
-        if (rowsDeleted > 0) {
-            return true;
-        } else {
-            return false;
+        //onCreate(sqLiteDatabase);
+        if (oldVersion <= DATABASE_VERSION) {
+            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " + BooksTable.YEAR + " INTEGER ");
+            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " + BooksTable.ISBN + " TEXT ");
         }
     }
 
-    public void deleteDatabase(Context context) {
-        context.deleteDatabase(LibraryDatabaseHelper.DATABASE_NAME);
-    }
-
-    /**
-     * Cheks that the database is empty or not
-     *
-     * @return True in case the database contain smth, otherwise false
-     */
-    public boolean isDatabaseContainsItems() {
-        List<Book> booksList = new ArrayList<Book>();
-        booksList = getAllBooks();
-
-        if (booksList.size() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Returns Book or null if there is no such book
-     */
-    public Book getBookById(int id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME +
-                " WHERE " + BooksTable._ID + " = " + id;
-
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        Book book;
-        if (cursor.moveToFirst()) {
-            book = getBookFromCursor(cursor);
-        } else {
-            return null;
-        }
-
-        db.close();
-        return book;
-    }
-
-    public void updateBook(Book book) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = putBookIntoContentValues(book);
-        db.update(BooksTable.TABLE_NAME, values, BooksTable._ID + "=" + book.getId(), null);
-        db.close();
-    }
-
-    public void addBook(Book book) {
-        if (book != null) {
-            SQLiteDatabase db = this.getWritableDatabase();
-            ContentValues values = putBookIntoContentValues(book);
-            db.insert(BooksTable.TABLE_NAME, null, values);
-            db.close();
-        } else {
-            throw new IllegalArgumentException("Passed book object is null");
-        }
-    }
-
-    public List<Book> getAllBooks() {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public static List<Book> getBooksList(Cursor cursor) {
         List<Book> bookList = new ArrayList<Book>();
-        String selectQuery = "SELECT * FROM " + BooksTable.TABLE_NAME;
-        Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
             do {
-                Book book = getBookFromCursor(cursor);
+                Book book = getBook(cursor);
                 bookList.add(book);
             } while (cursor.moveToNext());
         }
-        db.close();
         return bookList;
     }
 
-    /**
-     * Put values from object Book into ContentValues
-     */
-    private ContentValues putBookIntoContentValues(Book book) {
-        ContentValues values = new ContentValues();
-        values.put(BooksTable.TITLE, book.getTitle());
-        values.put(BooksTable.AUTHOR, book.getAuthor());
-        values.put(BooksTable.DESCRIPTION, book.getDescription());
-        values.put(BooksTable.COVER, book.getCover());
-        return values;
+    public static Book getBook(Cursor cursor) {
+        int position = cursor.getPosition();
+        if (position > 0) {
+            Book book = setBookValues(cursor);
+            return book;
+        } else if (cursor.moveToFirst()) {
+            Book book = setBookValues(cursor);
+            return book;
+        }
+        return null;
     }
 
-    private Book getBookFromCursor(Cursor cursor){
-        int id = cursor.getInt(cursor.getColumnIndex(BooksTable._ID));
+    public static Book setBookValues(Cursor cursor) {
+        Book book = getBookFromCursor(cursor);
+        return book;
+    }
+
+    public static ContentValues createBooksValues(Book book) {
+        ContentValues booksValues = new ContentValues();
+        booksValues.put(DatabaseContract.BooksTable.TITLE, book.getTitle());
+        booksValues.put(DatabaseContract.BooksTable.AUTHOR, book.getAuthor());
+        booksValues.put(DatabaseContract.BooksTable.DESCRIPTION, book.getDescription());
+        booksValues.put(DatabaseContract.BooksTable.COVER, book.getCover());
+        booksValues.put(BooksTable.YEAR, book.getYear());
+        booksValues.put(BooksTable.ISBN, book.getIsbn());
+        return booksValues;
+    }
+
+    public static Book getBookFromCursor(Cursor cursor) {
+        int id = cursor.getInt(cursor.getColumnIndex(DatabaseContract.BooksTable._ID));
         String title = cursor.getString(cursor.getColumnIndex(BooksTable.TITLE));
         String author = cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR));
         String description = cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION));
+        int year = cursor.getInt(cursor.getColumnIndex(BooksTable.YEAR));
+        String isbn = cursor.getString(cursor.getColumnIndex(BooksTable.ISBN));
         byte[] cover = cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER));
-        Book book = new Book(id,title,author,description,cover);
 
+        Book book = new Book(id, title, author, description, cover, year, isbn);
         return book;
     }
 }

@@ -1,8 +1,10 @@
 package com.example.admin.personallibrarycatalogue;
 
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.admin.personallibrarycatalogue.data.Book;
+import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
 import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
 
 import java.io.FileNotFoundException;
@@ -31,13 +34,18 @@ import java.io.InputStream;
 public class AddBookActivityFragment extends Fragment {
 
     public final int SELECT_PHOTO = 1;
-    public final int WIDTH  = 72;
+    public final int WIDTH = 72;
     public final int HEIGHT = 60;
-
-
+    private ImageView imageView_;
+    private EditText authorEditText_;
+    private EditText titleEditText_;
+    private EditText descriptionEditText_;
+    private EditText yearEditText_;
+    private EditText isbnEditText_;
+    private ImageView coverView_;
     @Nullable
     private Integer id_;
-    private ImageView imageView_;
+
 
     public AddBookActivityFragment newInstance(String title, String author) {
         AddBookActivityFragment fragment = new AddBookActivityFragment();
@@ -63,12 +71,18 @@ public class AddBookActivityFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
         final LibraryDatabaseHelper helper = new LibraryDatabaseHelper(getActivity());
 
+        authorEditText_ = (EditText) rootView.findViewById(R.id.author_edit_text);
+        titleEditText_ = (EditText) rootView.findViewById(R.id.title_edit_text);
+        descriptionEditText_ = (EditText) rootView.findViewById(R.id.description_edit_text);
+        yearEditText_ = (EditText) rootView.findViewById(R.id.year_edit_text);
+        isbnEditText_ = (EditText) rootView.findViewById(R.id.isbn_edit_text);
+        coverView_ = (ImageView) rootView.findViewById(R.id.cover_image_view);
+
         Bundle extras = getActivity().getIntent().getExtras();
 
         if (extras != null) {
             id_ = getArguments().getInt("id");
-            Book book = helper.getBookById(id_);
-            fillAllFields(rootView, book);
+            fillAllFields(rootView, id_);
         }
 
         imageView_ = (ImageView) rootView.findViewById(R.id.cover_image_view);
@@ -100,21 +114,25 @@ public class AddBookActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                EditText authorEditText = (EditText) rootView.findViewById(R.id.author_edit_text);
-                String author = authorEditText.getText().toString();
+                String author = authorEditText_.getText().toString();
+                String title = titleEditText_.getText().toString();
+                String description = descriptionEditText_.getText().toString();
 
-                EditText titleEditText = (EditText) rootView.findViewById(R.id.title_edit_text);
-                String title = titleEditText.getText().toString();
+                int year = 0;
+                try {
+                    year = Integer.parseInt(yearEditText_.getText().toString());
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getActivity(), "Input is not an integer!", Toast.LENGTH_SHORT).show();
+                }
 
-                EditText descriptionEditText = (EditText) rootView.findViewById(R.id.description_edit_text);
-                String description = descriptionEditText.getText().toString();
+                String isbn = isbnEditText_.getText().toString();
 
-                ImageView coverView = (ImageView) rootView.findViewById(R.id.cover_image_view);
-
-                Bitmap source = ((BitmapDrawable)coverView.getDrawable()).getBitmap();
-                Bitmap image = Bitmap.createScaledBitmap(source,WIDTH,HEIGHT,true);
-
-                byte[] cover = Util.getBytesFromBitmap(image);
+                Bitmap source = ((BitmapDrawable) coverView_.getDrawable()).getBitmap();
+                byte[] cover = null;
+                if (source!=null) {
+                    Bitmap image = Bitmap.createScaledBitmap(source, WIDTH, HEIGHT, true);
+                    cover = Util.getBytesFromBitmap(image);
+                }
 
                 if (author.equals("")) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.missing_author_warning), Toast.LENGTH_SHORT).show();
@@ -126,13 +144,17 @@ public class AddBookActivityFragment extends Fragment {
                     return;
                 }
 
-                Book book = new Book(id_, title, author, description, cover);
+                Book book = new Book(id_, title, author, description, cover, year, isbn);
 
                 // in case user edit information just update data
                 if (id_ != null) {
-                    helper.updateBook(book);
+                    Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id_);
+                    ContentValues values = LibraryDatabaseHelper.createBooksValues(book);
+                    getActivity().getContentResolver().update(bookWithIdUri, values, null, null);
                 } else {
-                    helper.addBook(book);
+                    Uri bookWithIdUri = DatabaseContract.BooksTable.CONTENT_URI;
+                    ContentValues values = LibraryDatabaseHelper.createBooksValues(book);
+                    getActivity().getContentResolver().insert(bookWithIdUri, values);
                 }
 
                 Intent intent = new Intent(getActivity(), BooksListActivity.class);
@@ -143,7 +165,6 @@ public class AddBookActivityFragment extends Fragment {
             }
         });
 
-        // Actions for cancel button (clear fields and leave activity)
         Button cancelButton = (Button) rootView.findViewById(R.id.cancel);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,9 +186,7 @@ public class AddBookActivityFragment extends Fragment {
                         final Uri imageUri = imageReturnedIntent.getData();
                         final InputStream imageStream = getActivity().getContentResolver().openInputStream(imageUri);
                         final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-
                         imageView_.setImageBitmap(selectedImage);
-                        //selectedImage.recycle();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -175,17 +194,13 @@ public class AddBookActivityFragment extends Fragment {
         }
     }
 
-    private void fillAllFields(View view, Book book) {
-        EditText titleEditText = (EditText) view.findViewById(R.id.title_edit_text);
-        titleEditText.setText(book.getTitle());
-
-        EditText authorEditText = (EditText) view.findViewById(R.id.author_edit_text);
-        authorEditText.setText(book.getAuthor());
-
-        EditText descriptionEditText = (EditText) view.findViewById(R.id.description_edit_text);
-        descriptionEditText.setText(book.getDescription());
-
-        ImageView coverView = (ImageView) view.findViewById(R.id.cover_image_view);
-        coverView.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
+    private void fillAllFields(View view, int id) {
+        Book book = ContentResolverHelper.getBook(getActivity(), id);
+        titleEditText_.setText(book.getTitle());
+        authorEditText_.setText(book.getAuthor());
+        descriptionEditText_.setText(book.getDescription());
+        yearEditText_.setText(Integer.toString(book.getYear()));
+        isbnEditText_.setText(book.getIsbn());
+        coverView_.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
     }
 }

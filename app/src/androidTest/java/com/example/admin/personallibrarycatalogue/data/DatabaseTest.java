@@ -9,18 +9,20 @@ import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.example.admin.personallibrarycatalogue.R;
+import com.example.admin.personallibrarycatalogue.Util;
 import com.example.admin.personallibrarycatalogue.data.DatabaseContract.BooksTable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Created by Mikhail Valuyskiy on 26.05.2015.
  */
-public class TestDb extends AndroidTestCase {
+public class DatabaseTest extends AndroidTestCase {
 
-    public static final String LOG_TAG = TestDb.class.getSimpleName();
+    public static final String LOG_TAG = DatabaseTest.class.getSimpleName();
 
     private static final String BOOK_TITLE = "Thinking in Java";
     private static final String BOOK_AUTHOR = "Bruce Eckel";
@@ -39,8 +41,8 @@ public class TestDb extends AndroidTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        database_.delete(DatabaseContract.BooksTable.TABLE_NAME, "1", null);
         helper_.close();
-        helper_.deleteDatabase(mContext);
     }
 
     public void testCreateDb() throws Throwable {
@@ -85,8 +87,7 @@ public class TestDb extends AndroidTestCase {
         booksValues.put(BooksTable.TITLE, BOOK_TITLE);
         booksValues.put(BooksTable.AUTHOR, BOOK_AUTHOR);
         booksValues.put(BooksTable.DESCRIPTION, BOOK_DESCRIPTION);
-        Bitmap image = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.ic_launcher);
-        booksValues.put(BooksTable.COVER, getBytesFromBitmap(image));
+        booksValues.put(BooksTable.COVER, Util.getBytesFromDrawable(mContext.getDrawable(R.mipmap.cover)));
         return booksValues;
     }
 
