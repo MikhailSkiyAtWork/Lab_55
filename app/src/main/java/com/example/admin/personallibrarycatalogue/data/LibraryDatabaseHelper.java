@@ -51,9 +51,9 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         //onCreate(sqLiteDatabase);
-        if (oldVersion<DATABASE_VERSION){
-            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " + BooksTable.YEAR + " INTEGER " );
-            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " +  BooksTable.ISBN + " TEXT ");
+        if (oldVersion <= DATABASE_VERSION) {
+            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " + BooksTable.YEAR + " INTEGER ");
+            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " + BooksTable.ISBN + " TEXT ");
         }
     }
 

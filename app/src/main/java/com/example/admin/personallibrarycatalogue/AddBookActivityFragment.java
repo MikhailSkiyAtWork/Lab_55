@@ -134,8 +134,6 @@ public class AddBookActivityFragment extends Fragment {
                     cover = Util.getBytesFromBitmap(image);
                 }
 
-
-
                 if (author.equals("")) {
                     Toast.makeText(getActivity(), getResources().getString(R.string.missing_author_warning), Toast.LENGTH_SHORT).show();
                     return;
