@@ -12,4 +12,10 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item android:id="@+id/share_in_twitter"
+        android:title="@string/share_in_twitter_action"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+
 </menu>
