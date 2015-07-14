@@ -34,4 +34,13 @@
     <string name="info">Please write less then 140 symbols</string>
 
 
+    <!-- values for SharedPreferences-->
+    <string name="title_settings">Title</string>
+    <string name="author_settings">Author</string>
+
+    <!-- values for warnings-->
+    <string name="missing_title_warning">Please enter the title field</string>
+    <string name="missing_author_warning">Please enter the author field</string>
+    <string name="no_apropriate_apps_msg">There are no applications to pick a photo</string>
+
 </resources>

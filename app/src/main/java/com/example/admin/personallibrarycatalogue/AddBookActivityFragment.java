@@ -1,12 +1,15 @@
 package com.example.admin.personallibrarycatalogue;
 
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.UriMatcher;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,26 +29,34 @@ import java.io.InputStream;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * The fragment is using for adding and editinig book
  */
 public class AddBookActivityFragment extends Fragment {
 
-    private final static String TITLE = "Title";
-    private final static String AUTHOR = "Author";
-    private final static String PLEASE_ENTER_THE_AUTHOR_FIELD = "Please enter the author field";
-    private final static String PLEASE_ENTER_THE_TITLE_FIELD = "Please enter the title field";
-    private static final String bookSelectionQuery = DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID + " = ?";
+    public final int SELECT_PHOTO = 1;
+    public final int WIDTH = 72;
+    public final int HEIGHT = 60;
     private ImageView imageView_;
-    private final int SELECT_PHOTO = 1;
+    private EditText authorEditText_;
+    private EditText titleEditText_;
+    private EditText descriptionEditText_;
+    private EditText yearEditText_;
+    private EditText isbnEditText_;
+    private ImageView coverView_;
+    @Nullable
     private Integer id_;
+
 
     public AddBookActivityFragment newInstance(String title, String author) {
         AddBookActivityFragment fragment = new AddBookActivityFragment();
 
         // arguments
         Bundle arguments = new Bundle();
-        arguments.putString(TITLE, title);
-        arguments.putString(AUTHOR, author);
+
+        // Using values from string.xml resources
+        Resources resources = getResources();
+        arguments.putString(String.format(resources.getString(R.string.title_settings)), title);
+        arguments.putString(String.format(resources.getString(R.string.author_settings)), author);
         fragment.setArguments(arguments);
         return fragment;
     }
@@ -57,8 +68,16 @@ public class AddBookActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
         final View rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
+        final LibraryDatabaseHelper helper = new LibraryDatabaseHelper(getActivity());
+
+        authorEditText_ = (EditText) rootView.findViewById(R.id.author_edit_text);
+        titleEditText_ = (EditText) rootView.findViewById(R.id.title_edit_text);
+        descriptionEditText_ = (EditText) rootView.findViewById(R.id.description_edit_text);
+        yearEditText_ = (EditText) rootView.findViewById(R.id.year_edit_text);
+        isbnEditText_ = (EditText) rootView.findViewById(R.id.isbn_edit_text);
+        coverView_ = (ImageView) rootView.findViewById(R.id.cover_image_view);
+
         Bundle extras = getActivity().getIntent().getExtras();
 
         if (extras != null) {
@@ -75,48 +94,53 @@ public class AddBookActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+
+                ComponentName activity = photoPickerIntent.resolveActivity(getActivity().getPackageManager());
                 photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+
+                if (activity != null) {
+                    startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+                } else {
+                    Toast.makeText(getActivity().getBaseContext(), getResources().getString(R.string.no_apropriate_apps_msg),
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         // Actions for ok - button (Checking fields, insert into database, start new activity)
-        Button okButton = (Button) rootView.findViewById(R.id.apply_button);
+        Button applyButton = (Button) rootView.findViewById(R.id.apply_button);
 
-        okButton.setOnClickListener(new View.OnClickListener() {
+        applyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                EditText authorEditText = (EditText) rootView.findViewById(R.id.author_edit_text);
-                String author = authorEditText.getText().toString();
-
-                EditText titleEditText = (EditText) rootView.findViewById(R.id.title_edit_text);
-                String title = titleEditText.getText().toString();
-
-                EditText descriptionEditText = (EditText) rootView.findViewById(R.id.description_edit_text);
-                String description = descriptionEditText.getText().toString();
-
-                EditText yearEditText = (EditText) rootView.findViewById(R.id.year_edit_text);
+                String author = authorEditText_.getText().toString();
+                String title = titleEditText_.getText().toString();
+                String description = descriptionEditText_.getText().toString();
 
                 int year = 0;
-
-                if (yearEditText.getText().toString().length()>0) {
-                     year = Integer.parseInt(yearEditText.getText().toString());
+                try {
+                    year = Integer.parseInt(yearEditText_.getText().toString());
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getActivity(), "Input is not an integer!", Toast.LENGTH_SHORT).show();
                 }
 
-                EditText isbnEditText = (EditText) rootView.findViewById(R.id.isbn_edit_text);
-                String isbn = isbnEditText.getText().toString();
+                String isbn = isbnEditText_.getText().toString();
 
-                ImageView coverView = (ImageView) rootView.findViewById(R.id.cover_image_view);
-                byte[] cover = Util.getBytesFromDrawable(coverView.getDrawable());
+                Bitmap source = ((BitmapDrawable) coverView_.getDrawable()).getBitmap();
+                byte[] cover = null;
+                if (source!=null) {
+                    Bitmap image = Bitmap.createScaledBitmap(source, WIDTH, HEIGHT, true);
+                    cover = Util.getBytesFromBitmap(image);
+                }
 
-                if (author.matches("")) {
-                    Toast.makeText(getActivity(), PLEASE_ENTER_THE_AUTHOR_FIELD, Toast.LENGTH_SHORT).show();
+                if (author.equals("")) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.missing_author_warning), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (title.matches("")) {
-                    Toast.makeText(getActivity(), PLEASE_ENTER_THE_TITLE_FIELD, Toast.LENGTH_SHORT).show();
+                if (title.equals("")) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.missing_title_warning), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -124,81 +148,32 @@ public class AddBookActivityFragment extends Fragment {
 
                 // in case user edit information just update data
                 if (id_ != null) {
-
                     Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id_);
                     ContentValues values = LibraryDatabaseHelper.createBooksValues(book);
                     getActivity().getContentResolver().update(bookWithIdUri, values, null, null);
-
                 } else {
-
                     Uri bookWithIdUri = DatabaseContract.BooksTable.CONTENT_URI;
                     ContentValues values = LibraryDatabaseHelper.createBooksValues(book);
                     getActivity().getContentResolver().insert(bookWithIdUri, values);
                 }
 
                 Intent intent = new Intent(getActivity(), BooksListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
+                getActivity().finish();
+
             }
         });
 
-        // Actions for cancel button (clear fields and leave activity)
         Button cancelButton = (Button) rootView.findViewById(R.id.cancel);
-       cancelButton.setOnClickListener(new View.OnClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ViewGroup group = (ViewGroup) rootView.findViewById(R.id.add_book_layout);
-                clearForm(group);
-
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                startActivity(intent);
+                getActivity().finish();
             }
         });
 
         return rootView;
-    }
-
-    /**
-     * Clears all edtiText fileds
-     */
-    private void clearForm(ViewGroup group) {
-        for (int i = 0, count = group.getChildCount(); i < count; i++) {
-            View view = group.getChildAt(i);
-            if (view instanceof EditText) {
-                ((EditText) view).setText("");
-            }
-        }
-    }
-
-    private void fillAllFields(View view, int id) {
-
-
-        Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id);
-        Cursor cursor = getActivity().getContentResolver().query(bookWithIdUri,
-                null,
-                bookSelectionQuery,
-                new String[]{id_.toString()},
-                null);
-
-        Book book = LibraryDatabaseHelper.getBook(cursor);
-
-        EditText titleEditText = (EditText) view.findViewById(R.id.title_edit_text);
-        titleEditText.setText(book.getTitle());
-
-        EditText authorEditText = (EditText) view.findViewById(R.id.author_edit_text);
-        authorEditText.setText(book.getAuthor());
-
-        EditText descriptionEditText = (EditText) view.findViewById(R.id.description_edit_text);
-        descriptionEditText.setText(book.getDescription());
-
-        EditText yearEditText = (EditText)view.findViewById(R.id.year_edit_text);
-        yearEditText.setText(Integer.toString(book.getYear()));
-
-        EditText isbnEditText = (EditText)view.findViewById(R.id.isbn_edit_text);
-        isbnEditText.setText(book.getIsbn());
-
-        ImageView coverView = (ImageView) view.findViewById(R.id.cover_image_view);
-        coverView.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
-
     }
 
     @Override
@@ -217,5 +192,15 @@ public class AddBookActivityFragment extends Fragment {
                     }
                 }
         }
+    }
+
+    private void fillAllFields(View view, int id) {
+        Book book = ContentResolverHelper.getBook(getActivity(), id);
+        titleEditText_.setText(book.getTitle());
+        authorEditText_.setText(book.getAuthor());
+        descriptionEditText_.setText(book.getDescription());
+        yearEditText_.setText(Integer.toString(book.getYear()));
+        isbnEditText_.setText(book.getIsbn());
+        coverView_.setImageBitmap(Util.getBitmapFromBytes(book.getCover()));
     }
 }

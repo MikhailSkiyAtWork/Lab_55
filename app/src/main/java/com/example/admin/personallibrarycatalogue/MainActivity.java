@@ -4,36 +4,49 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.admin.personallibrarycatalogue.data.Book;
+import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
+import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends ActionBarActivity {
 
-    SharedPreferences preferences = null;
     private static final String APP_NAME = "com.example.admin.personallibrarycatalogue";
-    private static final String FIRSTRUN = "firstrun";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        preferences = getSharedPreferences(APP_NAME, MODE_PRIVATE);
+        LibraryDatabaseHelper helper_ = new LibraryDatabaseHelper(this);
+        List<Book> booksList = new ArrayList<Book>();
 
-        // If app was launched first time show user sugestion to add book
-        if (preferences.getBoolean(FIRSTRUN, true)) {
+        Cursor cursor = this.getContentResolver().query(DatabaseContract.BooksTable.CONTENT_URI,
+                DatabaseContract.BOOK_COLUMNS,
+                null,
+                null,
+                null);
+
+        // If app was launched first time or there are no books, show user sugestion to add book
+        if (!(cursor.getCount() > 0)) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment, new FirstLaunchFragment())
                     .commit();
-
-            preferences.edit().putBoolean(FIRSTRUN, false).commit();
-
         } else {
             Intent intent = new Intent(this, BooksListActivity.class);
             startActivity(intent);
+            finish();
         }
     }
 
@@ -51,12 +64,12 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.add_book_action:
-                Intent intent = new Intent(this,AddBookActivity.class);
+                Intent intent = new Intent(this, AddBookActivity.class);
                 startActivity(intent);
-             default:
-                 return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

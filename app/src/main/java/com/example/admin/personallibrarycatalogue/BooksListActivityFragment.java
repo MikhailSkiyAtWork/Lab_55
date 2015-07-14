@@ -1,12 +1,14 @@
 package com.example.admin.personallibrarycatalogue;
 
 
+import android.content.ContentValues;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.support.v4.app.LoaderManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -15,6 +17,7 @@ import android.support.v4.content.Loader;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.internal.widget.AdapterViewCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
@@ -33,11 +36,15 @@ import com.example.admin.personallibrarycatalogue.data.Book;
 import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
 import com.example.admin.personallibrarycatalogue.data.LibraryDatabaseHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import twitter4j.auth.RequestToken;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * The fragment which responsible for showing list of all books
  */
 public class BooksListActivityFragment extends Fragment implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -105,7 +112,8 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) listView_.getItemAtPosition(position);
-                changeBook(cursor);
+                Book book = LibraryDatabaseHelper.getBook(cursor);
+                updateBook(book);
             }
         });
 
@@ -130,14 +138,15 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         Cursor cursor = (Cursor) listView_.getItemAtPosition(info.position);
+        Book book = LibraryDatabaseHelper.getBook(cursor);
 
         switch (item.getItemId()) {
             case R.id.edit_book:
-                changeBook(cursor);
+                updateBook(book);
                 break;
 
             case R.id.delete_book:
-                deleteBook(cursor);
+                deleteBook(book);
                 booksListAdapter_.notifyDataSetChanged();
                 break;
 
@@ -154,21 +163,15 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
     /**
      * Set up activity for changing some information about book (title, author etc.)
      */
-    public void changeBook(Cursor cursor) {
-        Book book = LibraryDatabaseHelper.getBook(cursor);
-        int id = book.getId();
-
-        Intent intent = new Intent();
-        intent.setClass(getActivity(), AddBookActivity.class);
-        intent.putExtra(ID, id);
+    public void updateBook(Book book) {
+        Intent intent = new Intent(getActivity(), AddBookActivity.class);
+        intent.putExtra(EXTRA_ID, book.getId());
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
 
-    public void deleteBook(Cursor cursor) {
-        Book book = LibraryDatabaseHelper.getBook(cursor);
-        int id = book.getId();
-
-        Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(id);
+    public void deleteBook(Book book) {
+        Uri bookWithIdUri = DatabaseContract.BooksTable.buildBookUri(book.getId());
         // Delete from database with help of Content Provider
         getActivity().getContentResolver().delete(bookWithIdUri, null, null);
     }

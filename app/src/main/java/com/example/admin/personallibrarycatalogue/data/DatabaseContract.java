@@ -8,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.provider.ContactsContract;
 
 /**
  * Describes fields of database for Personal Library Application
@@ -21,14 +22,14 @@ public class DatabaseContract {
     /**
      * Inner class that defines the table contents of the Books table
      */
-    public static final class BooksTable implements BaseColumns{
+    public static final class BooksTable implements BaseColumns {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_BOOKS).build();
-        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" +CONTENT_AUTHORITY + "/" + PATH_BOOKS;
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_BOOKS;
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_BOOKS;
 
-        public static Uri buildBookUri(long id){
-            return ContentUris.withAppendedId(CONTENT_URI,id);
+        public static Uri buildBookUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
         public static final String TABLE_NAME = "books";
@@ -40,8 +41,17 @@ public class DatabaseContract {
         public static final String ISBN = "isbn";
     }
 
-    public static int getBookIdFromUri(Uri uri){
+    public static int getBookIdFromUri(Uri uri) {
         return Integer.parseInt(uri.getPathSegments().get(1));
     }
 
+    public static final String[] BOOK_COLUMNS = {
+            DatabaseContract.BooksTable.TABLE_NAME + "." + DatabaseContract.BooksTable._ID,
+            DatabaseContract.BooksTable.TITLE,
+            DatabaseContract.BooksTable.AUTHOR,
+            DatabaseContract.BooksTable.DESCRIPTION,
+            DatabaseContract.BooksTable.COVER,
+            DatabaseContract.BooksTable.YEAR,
+            DatabaseContract.BooksTable.ISBN,
+    };
 }

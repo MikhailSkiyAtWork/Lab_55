@@ -17,7 +17,7 @@ import com.example.admin.personallibrarycatalogue.data.DatabaseContract;
 import java.util.List;
 
 /**
- * Created by Admin on 27.05.2015.
+ * Created by Mikhail Valuyskiy on 25.05.2015.
  */
 public class BooksListAdapter extends CursorAdapter {
 
@@ -58,5 +58,6 @@ public class BooksListAdapter extends CursorAdapter {
 
         byte[] cover = cursor.getBlob(cursor.getColumnIndex(DatabaseContract.BooksTable.COVER));
         viewHolder.coverImageView_.setImageBitmap(Util.getBitmapFromBytes(cover));
+
     }
 }

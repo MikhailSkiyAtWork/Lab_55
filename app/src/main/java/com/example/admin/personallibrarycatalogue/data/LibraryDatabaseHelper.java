@@ -22,7 +22,7 @@ import java.util.List;
 public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     // When the database schema was changed, you must increment the database version
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
     static final String DATABASE_NAME = "library.db";
 
     public LibraryDatabaseHelper(Context context) {
@@ -50,8 +50,11 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.BooksTable.TABLE_NAME);
-        onCreate(sqLiteDatabase);
+        //onCreate(sqLiteDatabase);
+        if (oldVersion <= DATABASE_VERSION) {
+            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " + BooksTable.YEAR + " INTEGER ");
+            sqLiteDatabase.execSQL("ALTER TABLE " + BooksTable.TABLE_NAME + " ADD " + BooksTable.ISBN + " TEXT ");
+        }
     }
 
     public static List<Book> getBooksList(Cursor cursor) {
@@ -67,35 +70,19 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public static Book getBook(Cursor cursor) {
-        Book book = new Book();
-
         int position = cursor.getPosition();
         if (position > 0) {
-            book = setBookValues(cursor);
-
+            Book book = setBookValues(cursor);
+            return book;
         } else if (cursor.moveToFirst()) {
-            book = setBookValues(cursor);
-        }
+            Book book = setBookValues(cursor);
             return book;
         }
+        return null;
+    }
 
-    public static Book setBookValues (Cursor cursor){
-        Book book = new Book();
-        book.setId(cursor.getInt(cursor.getColumnIndex(BooksTable._ID)));
-        book.setTitle(cursor.getString(cursor.getColumnIndex(BooksTable.TITLE)));
-        book.setAuthor(cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR)));
-
-        if ((cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION))) != null) {
-            book.setDescription(cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION)));
-        }
-
-        if (cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)) != null) {
-            book.setCover(cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER)));
-        }
-
-        book.setYear(cursor.getInt(cursor.getColumnIndex(BooksTable.YEAR)));
-        book.setIsbn(cursor.getString(cursor.getColumnIndex(BooksTable.ISBN)));
-
+    public static Book setBookValues(Cursor cursor) {
+        Book book = getBookFromCursor(cursor);
         return book;
     }
 
@@ -110,4 +97,16 @@ public class LibraryDatabaseHelper extends SQLiteOpenHelper {
         return booksValues;
     }
 
+    public static Book getBookFromCursor(Cursor cursor) {
+        int id = cursor.getInt(cursor.getColumnIndex(DatabaseContract.BooksTable._ID));
+        String title = cursor.getString(cursor.getColumnIndex(BooksTable.TITLE));
+        String author = cursor.getString(cursor.getColumnIndex(BooksTable.AUTHOR));
+        String description = cursor.getString(cursor.getColumnIndex(BooksTable.DESCRIPTION));
+        int year = cursor.getInt(cursor.getColumnIndex(BooksTable.YEAR));
+        String isbn = cursor.getString(cursor.getColumnIndex(BooksTable.ISBN));
+        byte[] cover = cursor.getBlob(cursor.getColumnIndex(BooksTable.COVER));
+
+        Book book = new Book(id, title, author, description, cover, year, isbn);
+        return book;
+    }
 }
