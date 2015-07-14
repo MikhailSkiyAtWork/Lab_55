@@ -165,7 +165,7 @@ public class BooksListActivityFragment extends Fragment implements android.suppo
      */
     public void updateBook(Book book) {
         Intent intent = new Intent(getActivity(), AddBookActivity.class);
-        intent.putExtra(EXTRA_ID, book.getId());
+        intent.putExtra(ID, book.getId());
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
